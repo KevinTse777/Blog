@@ -2,55 +2,51 @@
 author: Sat Naing
 pubDatetime: 2022-09-26T12:13:24Z
 modDatetime: 2026-05-16T11:29:26.658Z
-title: Predefined color schemes
+title: "预定义的配色方案"
 slug: predefined-color-schemes
 featured: false
 draft: false
 tags:
   - color-schemes
-description:
-  Some of the well-crafted, updated predefined color schemes for AstroPaper.
-
+description: "AstroPaper 预设配色方案的整理与更新。"
 ---
-
 import ResponsiveTable from '@/components/ResponsiveTable.astro';
 
-AstroPaper includes a collection of predefined color schemes that can be applied to customize the theme appearance. Each scheme defines a complete set of CSS custom properties (variables) for light and dark modes.
+AstroPaper 包含一组预定义的配色方案，可用于自定义主题外观。每个方案都为浅色和深色模式定义了一整套 CSS 自定义属性（变量）。
 
-## Table of contents
+## 目录
 
-## Quick Start
+## 快速入门
 
-To apply a predefined color scheme, copy the CSS variable definitions into your theme configuration. For detailed setup instructions, see the [color scheme configuration guide](https://astro-paper.pages.dev/posts/customizing-astropaper-theme-color-schemes/).
+要应用预定义的配色方案，请将 CSS 变量定义复制到主题配置中。详细设置说明请参见【配色方案配置指南】(https://astro-paper.pages.dev/posts/customizing-astropaper-theme-color-schemes/)。
 
-## CSS Variables Reference
+## CSS 变量参考
 
-All color schemes use the following CSS custom properties:
+所有配色方案都使用以下 CSS 自定义属性：
 
 <ResponsiveTable variant="striped-minimal">
 
-| Variable              | Purpose                                                  |
-| --------------------- | -------------------------------------------------------- |
-| `--background`        | Primary background color                                 |
-| `--foreground`        | Primary text color                                       |
-| `--accent`            | Accent/interactive elements (links, buttons, highlights) |
-| `--accent-foreground` | Text color on accent backgrounds                         |
-| `--muted`             | Secondary background color for subtle sections           |
-| `--muted-foreground`  | Text color for secondary content                         |
-| `--border`            | Border and divider color                                 |
+|变量|目的|
+| -------------------- | -------------------------------------------------------------------- |
+| `--background` |主要背景颜色|
+| `--foreground` |主要文字颜色 |
+| `--accent` |强调/交互元素（链接、按钮、突出显示）|
+| `--accent-foreground` |强调背景上的文本颜色 |
+| `--muted` |微妙部分的辅助背景颜色 |
+| `--muted-foreground` |次要内容的文本颜色 |
+| `--border` |边框和分隔线颜色 |
 
 </ResponsiveTable>
 
-## Light Schemes
+## 灯光方案
 
-Light color schemes are defined using the CSS selectors `:root` and `[data-theme="light"]`.
+浅色方案使用 CSS 选择器 `:root` 和 `[data-theme="light"]` 定义。
 
-### Paper Light
+### 纸灯
 
-Default AstroPaper light theme.
+默认 AstroPaper 浅色主题。
 
 ![Paper Light](assets/paper-light.png)
-
 ```css
 :root,
 [data-theme="light"] {
@@ -63,13 +59,11 @@ Default AstroPaper light theme.
   --border: #ece9e9;
 }
 ```
+### 卡扬
 
-### Kha-Yan
-
-Purple-focused light scheme with warm background.
+紫色聚焦的灯光方案与温暖的背景。
 
 ![Kha-Yan](assets/kha-yan.png)
-
 ```css
 :root,
 [data-theme="light"] {
@@ -82,13 +76,11 @@ Purple-focused light scheme with warm background.
   --border: #cdc4d6;
 }
 ```
+### 尼拉
 
-### Nila
-
-Light purple scheme with cool blue undertones.
+浅紫色方案带有冷蓝色底色。
 
 ![Nila](assets/nila.png)
-
 ```css
 :root,
 [data-theme="light"] {
@@ -101,13 +93,11 @@ Light purple scheme with cool blue undertones.
   --border: #d8d6ec;
 }
 ```
+### 翡翠
 
-### Jadeite
-
-Teal-accented light scheme with neutral background.
+带有中性背景的青色强调光方案。
 
 ![Jadeite](assets/jadeite.png)
-
 ```css
 :root,
 [data-theme="light"] {
@@ -120,13 +110,11 @@ Teal-accented light scheme with neutral background.
   --border: #d4e1df;
 }
 ```
+### 皮特·廷恩·唐
 
-### Pyit Tine Htaung
-
-Red and gold accent scheme with warm tones.
+红色和金色的色调搭配温暖的色调。
 
 ![Pyit Tine Htaung](assets/pyit-tine-htaung.png)
-
 ```css
 :root,
 [data-theme="light"] {
@@ -139,17 +127,15 @@ Red and gold accent scheme with warm tones.
   --border: #ffdc98;
 }
 ```
+## 黑暗计划
 
-## Dark Schemes
+深色配色方案是使用 CSS 选择器 `[data-theme="dark"]` 定义的。
 
-Dark color schemes are defined using the CSS selector `[data-theme="dark"]`.
+### 纸黑
 
-### Paper Dark
-
-Original AstroPaper dark theme with cyan accents.
+带有青色色调的原始 AstroPaper 深色主题。
 
 ![AstroPaper 1 default dark theme](https://user-images.githubusercontent.com/53733092/215769153-13b0ad8d-5ba2-44b1-af06-e5ae61293f62.png)
-
 ```css
 [data-theme="dark"] {
   --background: #2f3741;
@@ -161,13 +147,11 @@ Original AstroPaper dark theme with cyan accents.
   --border: #3b4655;
 }
 ```
+### 纸黑 II
 
-### Paper Dark II
-
-Current default dark theme with orange accents.
+当前默认的深色主题带有橙色色调。
 
 ![new dark color scheme - low contrast](https://user-images.githubusercontent.com/53733092/215772856-d5b7ae35-ddaa-4ed6-b0bf-3fa5dbcf834c.png)
-
 ```css
 [data-theme="dark"] {
   --background: #212737;
@@ -179,13 +163,11 @@ Current default dark theme with orange accents.
   --border: #ab4b08;
 }
 ```
+### 深紫色
 
-### Deep Purple
-
-Vibrant magenta accents dark scheme.
+充满活力的洋红色强调深色方案。
 
 ![AstroPaper v3 new theme](https://github.com/satnaing/astro-paper/assets/53733092/c8b5d7e1-a3bc-4852-a5ad-4abf7b3cec79)
-
 ```css
 [data-theme="dark"] {
   --background: #212737;
@@ -197,13 +179,11 @@ Vibrant magenta accents dark scheme.
   --border: #642451;
 }
 ```
+### 余烬
 
-### Ember
-
-Warm, muted dark scheme with red accents.
+温暖、柔和的深色方案搭配红色点缀。
 
 ![Ember](assets/ember.png)
-
 ```css
 [data-theme="dark"] {
   --background: #1a1a1a;
@@ -215,13 +195,11 @@ Warm, muted dark scheme with red accents.
   --border: #6f5648;
 }
 ```
+### 浓缩咖啡
 
-### Espresso
-
-Brown-focused warm dark scheme.
+以棕色为主的暖暗方案。
 
 ![Coffee](assets/espresso.png)
-
 ```css
 [data-theme="dark"] {
   --background: #2f2f2f;

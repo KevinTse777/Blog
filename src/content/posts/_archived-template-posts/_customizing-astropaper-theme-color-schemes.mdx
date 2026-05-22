@@ -1,0 +1,95 @@
+---
+author: Sat Naing
+pubDatetime: 2022-09-25T15:20:35Z
+modDatetime: 2026-05-17T04:57:06.476Z
+title: "自定义 AstroPaper 主题配色方案"
+featured: false
+draft: false
+tags:
+  - color-schemes
+  - docs
+description: "如何启用/禁用浅色和深色模式，并自定义 AstroPaper 主题的配色方案。"
+---
+import ResponsiveTable from '@/components/ResponsiveTable.astro';
+
+本指南介绍了如何启用或禁用浅色和深色模式，以及如何自定义整个网站的配色方案。
+
+## 目录
+
+## 启用/禁用浅色和深色模式
+
+AstroPaper 主题默认包括浅色和深色模式。可以在 `astro-paper.config.ts` 中禁用此默认行为：
+```ts file="astro-paper.config.ts"
+export default defineAstroPaperConfig({
+  // ...
+  features: {
+    lightAndDarkMode: true, // [!code highlight]
+    // ...
+  },
+});
+```
+要禁用 `light & dark mode`，请将 `features.lightAndDarkMode` 设置为 `false`。禁用后，站点将仅使用`src/styles/theme.css`中定义的浅色方案。
+
+## 自定义配色方案
+
+AstroPaper 主题的浅色和深色配色方案均在`src/styles/theme.css` 中定义。
+```css file="src/styles/theme.css"
+/* Light theme values */
+:root,
+[data-theme="light"] {
+  --background: #fdfdfd;
+  --foreground: #282728;
+  --accent: #006cac;
+  --accent-foreground: #ffffff;
+  --muted: #e6e6e6;
+  --muted-foreground: #6b7280;
+  --border: #ece9e9;
+}
+
+/* Dark theme values */
+[data-theme="dark"] {
+  --background: #212737;
+  --foreground: #eaedf3;
+  --accent: #ff6b01;
+  --accent-foreground: #ffffff;
+  --muted: #343f60;
+  --muted-foreground: #afb9ca;
+  --border: #ab4b08;
+}
+`
+```:root` 和 `[data-theme="light"]` 选择器定义浅色方案，而 `[data-theme="dark"]` 定义深色方案。
+
+要自定义您自己的配色方案，请在 `:root, [data-theme="light"]` 中指定浅色，在 `[data-theme="dark"]` 中指定深色。
+
+下面是每个颜色属性的详细解释：
+
+<ResponsiveTable variant="minimal" class="max-sm:-mx-4 [&_td]:first-of-type:text-nowrap">
+
+|颜色属性|定义和用法|
+| -------------------- | ---------------------------------------------------------------------------------- |
+| `--background` |网站的主色。通常是主要背景。            |
+| `--foreground` |网站的辅助颜色。通常是文本颜色。               |
+| `--accent` |强调色。用于链接、悬停状态和交互元素。 |
+| `--accent-foreground` |前景色显示在 `--accent` 背景之上。          |
+| `--muted` |柔和的背景颜色。用于卡片、标签和悬停状态。       |
+| `--muted-foreground` |显示在 `--muted` 背景之上的文本颜色。                 |
+| `--border` |边框颜色。用于分隔和视觉分隔。                |
+
+</ResponsiveTable>
+
+以下是更改灯光颜色方案的示例：
+```css file="src/styles/theme.css"
+/* ... */
+:root,
+[data-theme="light"] {
+  --background: #f6eee1;
+  --foreground: #012c56;
+  --accent: #e14a39;
+  --accent-foreground: #ffffff;
+  --muted: #efd8b0;
+  --muted-foreground: #6b7280;
+  --border: #dc9891;
+}
+/* ... */
+```
+> 查看 AstroPaper 已经为您制作的一些[预定义配色方案](https://astro-paper.pages.dev/posts/predefined-color-schemes/)。
