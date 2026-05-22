@@ -8,6 +8,7 @@ tags:
   - release
 description: "AstroPaper v6：对 Astro v6、Tailwind v4 进行了从头开始重写，并采用了新的配置系统。"
 ---
+
 AstroPaper v6 是基于 Astro v6、Tailwind CSS v4 和 TypeScript v6 的完全重写。此版本用单个统一配置文件替换了旧的 `SITE` / `constants.ts` 配置，并在代码库中引入了多项结构改进。
 
 ![AstroPaper v6](assets/AstroPaper-v6.png)
@@ -27,6 +28,7 @@ AstroPaper 现在附带 Astro v6.3，其中包括：
 ### 新的统一配置系统
 
 `src/config.ts` 中的平面`SITE` 对象和单独的`constants.ts` 文件已被项目根目录下的单个`astro-paper.config.ts` 替换。使用 `defineAstroPaperConfig()` 实现完整的 IntelliSense：
+
 ```ts file="astro-paper.config.ts"
 import { defineAstroPaperConfig } from "./src/types/config";
 
@@ -57,11 +59,13 @@ export default defineAstroPaperConfig({
   shareLinks: [{ name: "x", url: "https://x.com/intent/post?url=" }],
 });
 ```
+
 所有选项（站点元数据、分页、功能标志、社交链接和共享链接）现在都位于一个文件中。
 
 ### 稳定字体 API
 
 字体配置已从`experimental.fonts`升级为`astro.config.ts`中的顶级`fonts`键，匹配Astro v6的稳定API：
+
 ```ts file="astro.config.ts"
 export default defineConfig({
   fonts: [
@@ -75,6 +79,7 @@ export default defineConfig({
   ],
 });
 ```
+
 ### MDX 支持
 
 `@astrojs/mdx` 现已包含在内。帖子可以使用 `.mdx` 扩展来嵌入组件、使用 JSX 表达式以及从其他文件导入。内容加载器模式 `**/[^_]*.{md,mdx}` 自动选择两种格式。
@@ -82,6 +87,7 @@ export default defineConfig({
 ### 内容集合重组
 
 博客文章已从 `src/data/blog/` 移至 `src/content/posts/`，与 Astro 惯例保持一致。 `src/content/pages/` 上的新 `pages` 集合涵盖独立页面（关于等）。 `posts` 集合使用 Astro 的 `glob()` 加载器 — `defineCollection` 和 `type: "content"` 不再使用：
+
 ```ts file="src/content.config.ts"
 const posts = defineCollection({
   loader: glob({ pattern: "**/[^_]*.{md,mdx}", base: "./src/content/posts" }),
@@ -96,10 +102,12 @@ const posts = defineCollection({
     }),
 });
 ```
+
 ### 设计代币系统
 
 v5 中的 5 个令牌调色板在 `src/styles/theme.css` 中已增加到 7 个令牌。令牌被定义为 CSS 自定义属性并通过 `@theme inline` 注册到 Tailwind v4：
-```css file="src/styles/theme.css"
+
+````css file="src/styles/theme.css"
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -159,11 +167,14 @@ export default defineAstroPaperConfig({
     googleVerification: "your-google-site-verification-value",
   },
 });
-```
+````
+
 在您不希望将值提交到配置文件的情况下，仍然支持 `PUBLIC_GOOGLE_SITE_VERIFICATION` 环境变量作为后备。
+
 ```bash file=".env"
 PUBLIC_GOOGLE_SITE_VERIFICATION=your-google-site-verification-value
 ```
+
 当两者都设置时，`site.googleVerification`优先。
 
 ## 其他显着变化

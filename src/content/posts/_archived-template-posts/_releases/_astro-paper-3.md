@@ -9,6 +9,7 @@ tags:
   - release
 description: "AstroPaper 版本 3：通过 Astro v3 和无缝视图转换提升您的 Web 体验"
 ---
+
 我们很高兴地宣布发布 AstroPaper v3，其中包含新功能、增强功能和错误修复，可提升您的 Web 开发体验。让我们深入了解一下此版本的亮点：
 
 ![AstroPaper v3](@/assets/images/AstroPaper-v3.png)
@@ -78,7 +79,7 @@ Astro Prettier 插件是开箱即用的，以保持项目整洁和有组织。
 
 ## 选项 1：全新重启（推荐）
 
-在此版本中，进行了很多更改_用更新的 API 替换旧的 Astro API、错误修复、新功能等。因此，如果您不太进行定制，则应该遵循这种方法。
+在此版本中，进行了很多更改\_用更新的 API 替换旧的 Astro API、错误修复、新功能等。因此，如果您不太进行定制，则应该遵循这种方法。
 
 **_第 1 步：保留所有更新的文件_**
 
@@ -90,7 +91,8 @@ Astro Prettier 插件是开箱即用的，以保持项目整洁和有组织。
 - `/public/assets/`（v3 中没有触及）
 - `/content/blog/`（这是你的博客内容目录🤷🏻‍♂️）
 - 您所做的任何其他定制。
-```css
+
+`````css
 /* file: /src/styles/base.css */
 @layer base {
   /* Other Codes */
@@ -102,7 +104,7 @@ Astro Prettier 插件是开箱即用的，以保持项目整洁和有组织。
   code {
     white-space: pre;
     overflow: scroll;
-  } 
+  }
   */
 
   /* New code */
@@ -140,7 +142,7 @@ export interface Props {
   frontmatter: BlogFrontmatter;
   secHeading?: boolean;
 }
-```
+`````
 
 ```ts
 // AstroPaper v3
@@ -152,6 +154,7 @@ export interface Props {
   secHeading?: boolean;
 }
 ```
+
 ## 选项 2：使用 Git 升级
 
 不建议大多数用户使用此方法。如果可以的话，您应该执行"选项 1"。仅当您知道如何解决合并冲突并且知道自己在做什么时才执行此操作。

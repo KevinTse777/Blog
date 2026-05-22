@@ -8,6 +8,7 @@ tags:
   - release
 description: "AstroPaper v5：保持干净的外观，在引擎盖下进行更新。"
 ---
+
 期待已久的 AstroPaper v5 终于来了。 AstroPaper v5 保持了相同的简约和干净的外观，但在引擎盖下进行了重大更新。
 
 ![AstroPaper v5](@/assets/images/AstroPaper-v5.png)
@@ -27,6 +28,7 @@ AstroPaper 已升级到 Tailwind v4，其中包括许多底层样式更改。 `t
 由于 TailwindCSS v4 中的新行为，组件内 `<style>` 块内的样式已被删除并替换为内联 Tailwind 类。
 
 此外，用户界面的调色板也已更新。新调色板现在仅包含五种颜色：
+
 ```css
 :root,
 html[data-theme="light"] {
@@ -45,6 +47,7 @@ html[data-theme="dark"] {
   --border: #ab4b08;
 }
 ```
+
 ### 删除 React + Fuse.js 以支持 Pagefind 搜索
 
 在之前的版本中，React.js 和 Fuse.js 用于搜索功能和 OG 图像生成。在 AstroPaper v5 中，React.js 已被删除，并替换为静态站点搜索工具 [Pagefind](https://pagefind.app/)。
@@ -56,12 +59,14 @@ html[data-theme="dark"] {
 ### 更新了导入别名
 
 导入别名已从 `@directory` 更新为 `@/directory`，这意味着您现在必须像这样导入：
+
 ```astro
 ---
 import { slugifyStr } from "@/utils/slugify";
 import IconHash from "@/assets/icons/IconHash.svg";
 ---
 ```
+
 ### 移动到`pnpm`
 
 AstroPaper 已从 `npm` 切换到 `pnpm`，提供更快、更高效的包管理。

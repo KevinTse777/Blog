@@ -14,6 +14,7 @@ tags:
 description: "示例文章：使用 ReactJS、TypeScript 和 Styled-Components 开发类似终端的网站。"
 timezone: "Asia/Yangon"
 ---
+
 > 本文来源于我的【博文】(https://satnaing.dev/blog/posts/how-do-i-develop-my-terminal-portfolio-website-with-react)。我写这篇文章是为了演示如何使用 AstroPaper 主题撰写博客文章/文章。
 
 使用 ReactJS、TypeScript 和 Styled-Components 开发一个类似终端的网站。包括自动完成、多个主题、命令提示等功能。

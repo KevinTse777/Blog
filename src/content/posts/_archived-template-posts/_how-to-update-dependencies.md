@@ -10,6 +10,7 @@ tags:
   - FAQ
 description: "如何更新项目依赖项和 AstroPaper 模板。"
 ---
+
 更新项目的依赖项可能很乏味。然而，忽略更新项目依赖项也不是一个好主意。在这篇文章中，我将分享我通常如何更新我的项目，重点以 AstroPaper 为例。尽管如此，这些步骤也可以应用于其他 js/node 项目。
 
 ![Forrest Gump Fake Quote](@/assets/images/forrest-gump-quote.png)
@@ -23,23 +24,31 @@ description: "如何更新项目依赖项和 AstroPaper 模板。"
 我推荐的更新依赖项的方法是使用 [npm-check-updates 包](https://www.npmjs.com/package/npm-check-updates)。 freeCodeCamp 有一篇关于此的很好的[文章](https://www.freecodecamp.org/news/how-to-update-npm-dependencies/)，所以我不会解释它是什么以及如何使用该包的详细信息。相反，我将向您展示我的典型方法。
 
 首先，全局安装`npm-check-updates`包。
+
 ```bash
 npm install -g npm-check-updates
 ```
+
 在进行任何更新之前，最好检查所有可以更新的新依赖项。
+
 ```bash
 ncu
 ```
+
 大多数时候，补丁依赖项的更新完全不会影响项目。因此，我通常通过运行 `ncu -i --target patch` 或 `ncu -u --target patch` 来更新补丁依赖项。不同之处在于 `ncu -u --target patch` 将更新所有补丁，而 `ncu -i --target patch` 将提供切换要更新哪个包的选项。由您决定采取哪种方法。
 
 下一部分涉及更新次要依赖项。较小的软件包更新通常不会破坏项目，但检查各个软件包的发行说明总是好的。这些小的更新通常包括一些可以应用于我们的项目的很酷的功能。
+
 ```bash
 ncu -i --target minor
 ```
+
 最后但并非最不重要的一点是，依赖项中可能有一些主要的包更新。因此，通过运行检查其余的依赖项更新
+
 ```bash
 ncu -i
 ```
+
 如果有任何重大更新（或您仍然需要进行的某些更新），上述命令将输出那些剩余的软件包。如果该包是主要版本更新，您必须非常小心，因为这可能会破坏整个项目。因此，请仔细阅读相应的发行说明（或）文档并进行相应的更改。
 
 如果您运行 `ncu -i` 并发现没有更多软件包需要更新，_**恭喜!!!**_ 您已成功更新项目中的所有依赖项。
@@ -65,21 +74,29 @@ ncu -i
 > 仅当您知道如何解决合并冲突时才执行以下操作。否则，您最好手动替换文件或仅更新依赖项。
 
 首先，将 astro-paper 添加为项目中的遥控器。
+
 ```bash
 git remote add astro-paper https://github.com/satnaing/astro-paper.git
 ```
+
 签出到新分支以更新模板。如果您知道自己在做什么并且对自己的 git 技能充满信心，则可以省略此步骤。
+
 ```bash
 git checkout -b build/update-astro-paper
 ```
+
 然后，通过运行从 astro-paper 中提取更改
+
 ```bash
 git pull astro-paper main
 ```
+
 如果遇到 `fatal: refusing to merge unrelated histories` 错误，可以通过运行以下命令来解决该问题
+
 ```bash
 git pull astro-paper main --allow-unrelated-histories
 ```
+
 运行上述命令后，您的项目中可能会遇到冲突。您需要手动解决这些冲突并根据您的需要进行必要的调整。
 
 解决冲突后，彻底测试您的博客以确保一切按预期运行。检查您的文章、组件以及您所做的任何自定义。

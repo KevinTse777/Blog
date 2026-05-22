@@ -7,6 +7,7 @@ tags:
   - docs
 description: "了解如何使用 Markdown、KaTeX 和 remark/rehype 插件在 Astro 博客文章中添加 LaTeX 方程。"
 ---
+
 本文档演示了如何在 AstroPaper 的 Markdown 文件中使用 LaTeX 方程。 LaTeX 是一种功能强大的排版系统，通常用于数学和科学文档。
 
 <figure>
@@ -26,12 +27,15 @@ description: "了解如何使用 Markdown、KaTeX 和 remark/rehype 插件在 As
 在本节中，您将找到有关如何在 AstroPaper 的 Markdown 文件中添加对 LaTeX 的支持的说明。
 
 1. 通过运行以下命令安装必要的 remark 和 rehype 插件：
+
 ```bash
    pnpm install rehype-katex remark-math katex
-   
+
 ```
+
 2. 更新 Astro 配置以使用这些插件：
-```ts file=astro.config.ts
+
+````ts file=astro.config.ts
    // ...
    import remarkMath from "remark-math";
    import rehypeKatex from "rehype-katex";
@@ -53,7 +57,7 @@ description: "了解如何使用 Markdown、KaTeX 和 remark/rehype 插件在 As
      },
      // ...
    });
-   
+
 ```3.在主布局文件中导入KaTeX CSS
 ```astro file=src/layouts/Layout.astro
    ---
@@ -75,27 +79,29 @@ description: "了解如何使用 Markdown、KaTeX 和 remark/rehype 插件在 As
    <body>
      <slot />
    </body>
-   
-```
+
+````
+
 4. 作为最后一步，为 `typography.css` 中的 `katex` 添加文本颜色。
+
 ```css file=src/styles/typography.css
-   @plugin "@tailwindcss/typography";
+@plugin "@tailwindcss/typography";
 
-   @layer base {
-     /* other classes */
+@layer base {
+  /* other classes */
 
-     /* Katex text color */
-     /* [!code highlight:3] */
-     .prose .katex-display {
-       @apply text-foreground;
-     }
+  /* Katex text color */
+  /* [!code highlight:3] */
+  .prose .katex-display {
+    @apply text-foreground;
+  }
 
-     /* ===== Code Blocks & Syntax Highlighting ===== */
-     /* other classes */
-   }
-   
+  /* ===== Code Blocks & Syntax Highlighting ===== */
+  /* other classes */
+}
 ```
-而且_voilà_，此设置允许您在 Markdown 文件中编写 LaTeX 方程，这些方程将在网站构建时正确呈现。完成此操作后，文档的其余部分将正确呈现。
+
+而且*voilà*，此设置允许您在 Markdown 文件中编写 LaTeX 方程，这些方程将在网站构建时正确呈现。完成此操作后，文档的其余部分将正确呈现。
 
 ---
 
@@ -103,9 +109,7 @@ description: "了解如何使用 Markdown、KaTeX 和 remark/rehype 插件在 As
 
 内联方程写在单个美元符号 `$...$` 之间。以下是一些示例：
 
-1.著名的质能当量公式：`$E = mc^2$`
-2.二次公式：`$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$`
-3.欧拉恒等式：`$e^{i\pi} + 1 = 0$`
+1.著名的质能当量公式：`$E = mc^2$` 2.二次公式：`$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$` 3.欧拉恒等式：`$e^{i\pi} + 1 = 0$`
 
 ---
 
@@ -114,15 +118,20 @@ description: "了解如何使用 Markdown、KaTeX 和 remark/rehype 插件在 As
 对于更复杂的方程或当您希望方程单独显示时，请使用双美元符号 `$$...$$`：
 
 高斯积分：
+
 ```bash
 $$ \int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi} $$
 ```
+
 黎曼zeta函数的定义：
+
 ```bash
 $$ \zeta(s) = \sum_{n=1}^{\infty} \frac{1}{n^s} $$
 ```
+
 微分形式的麦克斯韦方程组：
-```bash
+
+````bash
 $$
 \begin{aligned}
 \nabla \cdot \mathbf{E} &= \frac{\rho}{\varepsilon_0} \\
@@ -141,3 +150,4 @@ LaTeX 提供了广泛的数学符号：
 - 运算符：`$\sum$`、`$\prod$`、`$\int$`、`$\partial$`、`$\nabla$`
 - 关系：`$\leq$`、`$\geq$`、`$\approx$`、`$\sim$`、`$\propto$`
 - 逻辑符号：`$\forall$`、`$\exists$`、`$\neg$`、`$\wedge$`、`$\vee$`
+````
