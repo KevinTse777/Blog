@@ -34,4 +34,12 @@ const pages = defineCollection({
   }),
 });
 
-export const collections = { posts, pages };
+const recently = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/recently" }),
+  schema: z.object({
+    title: z.string(),
+    updated: z.date(),
+  }),
+});
+
+export const collections = { posts, pages, recently };

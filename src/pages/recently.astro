@@ -1,0 +1,43 @@
+---
+import { getCollection, render } from "astro:content";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Breadcrumb from "@/components/Breadcrumb.astro";
+import Main from "@/components/Main.astro";
+import Footer from "@/components/Footer.astro";
+import config from "@/config";
+
+const entries = await getCollection("recently");
+const entry = entries[0];
+
+if (!entry) {
+  throw new Error(
+    "Missing content entry: `recently.md` in `src/content/recently/`"
+  );
+}
+
+const { Content } = await render(entry);
+---
+
+<Layout
+  title={`${entry.data.title} | ${config.site.title}`}
+  description={`最近在做什么 - 更新于 ${entry.data.updated.toLocaleDateString("zh-CN")}`}
+>
+  <Header />
+
+  <Breadcrumb />
+
+  <Main pageTitle={entry.data.title} class="app-prose">
+    <p class="text-muted -mt-4 mb-6 text-sm">
+      更新于{" "}
+      {entry.data.updated.toLocaleDateString("zh-CN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })}
+    </p>
+    <Content />
+  </Main>
+
+  <Footer />
+</Layout>

@@ -1,0 +1,26 @@
+---
+import { getCollection, render } from "astro:content";
+
+const entries = await getCollection("recently");
+const entry = entries[0];
+const { Content } = entry ? await render(entry) : { Content: null };
+---
+
+{
+  entry && (
+    <section class="my-8 rounded-lg border border-border p-6">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-xl font-bold">{entry.data.title}</h2>
+        <span class="text-sm text-muted">
+          更新于{" "}
+          {entry.data.updated.toLocaleDateString("zh-CN", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </span>
+      </div>
+      {Content && <div class="prose-sm"><Content /></div>}
+    </section>
+  )
+}
