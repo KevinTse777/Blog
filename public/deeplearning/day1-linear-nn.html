@@ -1,0 +1,1251 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>第一天：线性神经网络与 MLP 入门</title>
+  <style>
+    :root {
+      --bg: #f6f7f2;
+      --paper: #fffefa;
+      --ink: #17201b;
+      --muted: #66716a;
+      --line: #dbe0d4;
+      --accent: #0f766e;
+      --accent-2: #d97706;
+      --blue: #2563eb;
+      --red: #dc2626;
+      --green: #16a34a;
+      --soft: #ecfdf5;
+      --warn: #fff7ed;
+      --mist: #eef6ff;
+      --shadow: 0 18px 45px rgba(31, 41, 35, .09);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(15, 118, 110, .10), transparent 26rem),
+        linear-gradient(180deg, #fbfcf7 0%, var(--bg) 45%, #f8faf5 100%);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      letter-spacing: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    .layout {
+      display: grid;
+      grid-template-columns: 268px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 18px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 254, 250, .88);
+      backdrop-filter: blur(12px);
+      overflow: auto;
+    }
+
+    .brand {
+      display: grid;
+      gap: 8px;
+      padding: 0 8px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand b {
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .brand span,
+    .toc-title {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    nav {
+      display: grid;
+      gap: 6px;
+      margin-top: 18px;
+    }
+
+    nav a {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 7px;
+      color: #36433c;
+      font-size: 14px;
+      line-height: 1.35;
+      transition: background .18s ease, color .18s ease, transform .18s ease;
+    }
+
+    nav a:hover {
+      background: #eef7f4;
+      color: var(--accent);
+      transform: translateX(2px);
+    }
+
+    main { min-width: 0; }
+    .hero {
+      min-height: 72vh;
+      display: grid;
+      align-items: center;
+      padding: 72px 7vw 46px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(115deg, rgba(255, 254, 250, .92), rgba(255, 254, 250, .70)),
+        repeating-linear-gradient(90deg, rgba(15, 118, 110, .08) 0 1px, transparent 1px 64px),
+        repeating-linear-gradient(0deg, rgba(37, 99, 235, .06) 0 1px, transparent 1px 64px);
+    }
+
+    .hero-inner {
+      max-width: 1120px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+      gap: 42px;
+      align-items: center;
+    }
+
+    .hero-inner > * { min-width: 0; }
+
+    .eyebrow {
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 14px 0 18px;
+      max-width: 760px;
+      font-size: clamp(32px, 5vw, 58px);
+      line-height: 1.03;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .lead {
+      max-width: 720px;
+      color: #3c4942;
+      font-size: clamp(15px, 1.7vw, 19px);
+      line-height: 1.65;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .tag {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: rgba(255, 255, 255, .68);
+      color: #41504a;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .hero-visual {
+      min-height: 360px;
+      border: 1px solid #cdd7cc;
+      border-radius: var(--radius);
+      background: rgba(255, 254, 250, .76);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      animation: rise .7s ease both;
+    }
+
+    @keyframes rise {
+      from { transform: translateY(10px); }
+      to { transform: translateY(0); }
+    }
+
+    .content {
+      width: min(1120px, calc(100% - 44px));
+      margin: 0 auto;
+      padding: 42px 0 84px;
+    }
+
+    section {
+      scroll-margin-top: 24px;
+      margin: 0 0 36px;
+      padding: 32px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 254, 250, .92);
+      box-shadow: 0 10px 28px rgba(31, 41, 35, .045);
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: clamp(22px, 2.5vw, 30px);
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 26px 0 10px;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { padding-left: 1.35em; }
+    li { margin: 7px 0; }
+    strong { color: #0e3f3b; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card, .note, .warn, .exam, .formula, .example, .diagram {
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      padding: 18px;
+      background: #ffffff;
+    }
+
+    .card h3:first-child,
+    .note h3:first-child,
+    .warn h3:first-child,
+    .exam h3:first-child,
+    .example h3:first-child { margin-top: 0; }
+
+    .note {
+      border-color: #b7ded7;
+      background: var(--soft);
+    }
+
+    .warn {
+      border-color: #fed7aa;
+      background: var(--warn);
+    }
+
+    .exam {
+      border-color: #bfdbfe;
+      background: var(--mist);
+    }
+
+    .formula {
+      background: #101815;
+      color: #f8fff9;
+      border-color: #101815;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: clamp(14px, 1.45vw, 17px);
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+
+    .formula small {
+      display: block;
+      color: #b9c9bf;
+      font-family: inherit;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .example {
+      background: #fffdf5;
+      border-color: #f5dd94;
+    }
+
+    .diagram {
+      background: #fbfcff;
+      overflow: hidden;
+    }
+
+    .concept {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .concept-row {
+      display: grid;
+      grid-template-columns: 140px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .concept-row b {
+      color: var(--accent);
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .node { fill: #fffefa; stroke: #0f766e; stroke-width: 2; }
+    .node-out { fill: #ecfdf5; stroke: #d97706; stroke-width: 2; }
+    .edge { stroke: #8a9990; stroke-width: 1.5; }
+    .label { font: 13px ui-sans-serif, system-ui, sans-serif; fill: #27342e; }
+    .tiny { font: 11px ui-sans-serif, system-ui, sans-serif; fill: #617068; }
+
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: stretch;
+      margin: 16px 0;
+    }
+
+    .step {
+      flex: 1 1 130px;
+      min-height: 76px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      font-weight: 800;
+      color: #223028;
+      position: relative;
+    }
+
+    .step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent);
+      font-size: 20px;
+    }
+
+    .interactive {
+      border: 1px solid #bfdad4;
+      background: #f8fffd;
+      border-radius: var(--radius);
+      padding: 18px;
+      margin: 16px 0;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    button {
+      border: 0;
+      border-radius: 7px;
+      padding: 10px 13px;
+      background: var(--accent);
+      color: white;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .16s ease, filter .16s ease;
+    }
+    button:hover { transform: translateY(-1px); filter: brightness(.96); }
+
+    .quiz-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      background: #fff;
+      margin: 12px 0;
+    }
+
+    .answer {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-left: 4px solid var(--accent);
+      background: #f1fbf8;
+      border-radius: 0 7px 7px 0;
+    }
+
+    .answer.show { display: block; animation: fade .2s ease both; }
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: #fff;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 12px 13px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #eaf5f2;
+      color: #103f3a;
+    }
+
+    .kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 5px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .92em;
+    }
+
+    .print-tip {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .layout { display: block; }
+      aside {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .hero { padding: 44px 22px 34px; }
+      .hero-inner, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .step:not(:last-child)::after { display: none; }
+    }
+
+    @media (max-width: 620px) {
+      body { overflow-x: hidden; }
+      main, .hero { width: 100%; max-width: 100vw; overflow: hidden; }
+      section { padding: 22px 16px; }
+      .content { width: min(100% - 24px, 1120px); }
+      nav { grid-template-columns: 1fr; }
+      .concept-row { grid-template-columns: 1fr; }
+      .hero-inner { display: block; max-width: 100%; }
+      .hero-tags { display: none; }
+      .tag { padding: 6px 9px; font-size: 12px; }
+      .hero-visual { display: none; }
+      .diagram { overflow-x: auto; }
+      .diagram svg { min-width: 420px; }
+      h1 { max-width: 100%; font-size: 28px; line-height: 1.16; word-break: break-all; }
+      th, td { padding: 10px; font-size: 14px; }
+    }
+
+    @media print {
+      body { background: #fff; color: #000; }
+      .layout { display: block; }
+      aside, button, .controls { display: none !important; }
+      .hero { min-height: auto; padding: 24px 0; border: 0; background: #fff; }
+      .hero-inner, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .content { width: 100%; padding: 0; }
+      section, .card, .note, .warn, .exam, .formula, .example, .diagram {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+      section { page-break-inside: avoid; margin-bottom: 14px; }
+      .answer { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="brand">
+        <b>第一天：线性神经网络与 MLP 入门</b>
+        <span>从直觉到公式，再到考试回答</span>
+      </div>
+      <div class="toc-title">目录导航</div>
+      <nav aria-label="章节目录">
+        <a href="#goals">一、学习目标</a>
+        <a href="#linear">二、线性神经网络</a>
+        <a href="#softmax">三、分类任务与 softmax</a>
+        <a href="#ce">四、交叉熵损失</a>
+        <a href="#activation">五、为什么需要激活函数</a>
+        <a href="#mlp">六、MLP 的结构</a>
+        <a href="#training">七、完整训练流程</a>
+        <a href="#exam">八、考试高频问题</a>
+        <a href="#quiz">九、自测题</a>
+        <a href="#summary">十、最后总结</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div class="hero-inner">
+          <div>
+            <div class="eyebrow">Day 1 Deep Learning Notes</div>
+            <h1>线性神经网络与 MLP 入门</h1>
+            <p class="lead">今天只抓住一条主线：线性模型负责“加权求和”，softmax 把分类输出变成概率，交叉熵衡量概率错得多离谱，激活函数让 MLP 从直线世界进入非线性世界。</p>
+            <div class="hero-tags">
+              <span class="tag">线性回归</span>
+              <span class="tag">softmax</span>
+              <span class="tag">交叉熵</span>
+              <span class="tag">ReLU</span>
+              <span class="tag">MLP</span>
+              <span class="tag">考试标准答法</span>
+            </div>
+          </div>
+          <div class="hero-visual" aria-label="线性模型到 MLP 的视觉摘要">
+            <svg viewBox="0 0 520 380" role="img">
+              <defs>
+                <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 Z" fill="#0f766e"></path>
+                </marker>
+              </defs>
+              <rect x="18" y="18" width="484" height="344" rx="8" fill="#fffefa" stroke="#dbe0d4"></rect>
+              <text x="38" y="56" class="label" style="font-weight:800;font-size:18px">一条主线</text>
+              <text x="38" y="83" class="tiny">Linear → Activation → MLP → Softmax → Loss</text>
+
+              <circle cx="84" cy="154" r="24" class="node"></circle>
+              <circle cx="84" cy="226" r="24" class="node"></circle>
+              <text x="75" y="159" class="label">x₁</text>
+              <text x="75" y="231" class="label">x₂</text>
+              <circle cx="208" cy="190" r="30" class="node-out"></circle>
+              <text x="190" y="196" class="label">Σ+b</text>
+              <line x1="108" y1="154" x2="178" y2="183" class="edge" marker-end="url(#arrow)"></line>
+              <line x1="108" y1="226" x2="178" y2="197" class="edge" marker-end="url(#arrow)"></line>
+              <text x="54" y="286" class="tiny">线性模型：加权求和 + 偏置</text>
+
+              <path d="M252 190 H303" stroke="#0f766e" stroke-width="2" marker-end="url(#arrow)"></path>
+              <rect x="313" y="124" width="76" height="132" rx="8" fill="#ecfdf5" stroke="#b7ded7"></rect>
+              <text x="327" y="158" class="label">ReLU</text>
+              <path d="M330 223 L352 223 L352 205 L376 181" fill="none" stroke="#d97706" stroke-width="4"></path>
+              <text x="318" y="286" class="tiny">激活函数：引入非线性</text>
+
+              <path d="M398 190 H438" stroke="#0f766e" stroke-width="2" marker-end="url(#arrow)"></path>
+              <rect x="446" y="135" width="38" height="30" rx="4" fill="#dbeafe"></rect>
+              <rect x="446" y="175" width="38" height="30" rx="4" fill="#bfdbfe"></rect>
+              <rect x="446" y="215" width="38" height="30" rx="4" fill="#93c5fd"></rect>
+              <text x="423" y="286" class="tiny">softmax：概率分布</text>
+
+              <path d="M58 326 C120 296, 165 354, 218 318 S320 300, 382 330 S455 333, 484 302" fill="none" stroke="#2563eb" stroke-width="3"></path>
+              <text x="38" y="348" class="tiny">MLP 可以组合出复杂非线性边界</text>
+            </svg>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="goals">
+          <h2>一、学习目标</h2>
+          <p>今天学完后，你需要能用自己的话说清楚这些内容。考试时不要求你背一大段，只要能把“是什么、为什么、公式、用途”连起来。</p>
+          <div class="grid-3">
+            <div class="card"><strong>线性回归</strong><br>能解释 <span class="kbd">ŷ = Xw + b</span>，知道它是“加权求和 + 偏置”。</div>
+            <div class="card"><strong>softmax</strong><br>能解释它把 logits 转成概率分布，概率非负且总和为 1。</div>
+            <div class="card"><strong>交叉熵</strong><br>能解释它衡量预测概率与真实标签的差距。</div>
+            <div class="card"><strong>激活函数</strong><br>能解释为什么没有激活函数，多层网络仍是线性模型。</div>
+            <div class="card"><strong>MLP 结构</strong><br>能说出 input、hidden layer、activation、output 的关系。</div>
+            <div class="card"><strong>模型区别</strong><br>能说明线性模型和 MLP 的本质区别：隐藏层 + 非线性。</div>
+          </div>
+        </section>
+
+        <section id="linear">
+          <h2>二、从线性神经网络开始</h2>
+          <div class="concept">
+            <div class="concept-row">
+              <b>直觉解释</b>
+              <div>线性模型像一个“评分器”：每个输入特征先乘以一个重要程度，也就是权重，然后全部加起来，再加一个基础值，也就是偏置。</div>
+            </div>
+            <div class="concept-row">
+              <b>数学公式</b>
+              <div>
+                <div class="formula">ŷ = Xw + b<small>X：输入特征矩阵；w：权重；b：偏置；ŷ：模型预测值。</small></div>
+              </div>
+            </div>
+            <div class="concept-row">
+              <b>简单例子</b>
+              <div>预测成绩：<span class="kbd">预测分数 = 0.6 × 学习时长 + 0.3 × 作业完成度 + 20</span>。这里 0.6 和 0.3 是权重，20 是偏置。</div>
+            </div>
+            <div class="concept-row">
+              <b>考试怎么答</b>
+              <div>线性神经网络用输入特征的加权和加偏置得到输出，本质是仿射变换。它结构简单、容易解释，但只能表达线性关系。</div>
+            </div>
+          </div>
+
+          <h3>1. 什么是线性模型</h3>
+          <p>线性模型假设输入特征和输出之间的关系可以用一条直线、一个平面，或者高维空间里的超平面来表示。对于单个样本，常写成 <span class="kbd">ŷ = wᵀx + b</span>；对于一批样本，常写成 <span class="kbd">ŷ = Xw + b</span>。</p>
+          <div class="grid-2">
+            <div class="diagram">
+              <svg viewBox="0 0 460 250" role="img" aria-label="线性模型连接图">
+                <defs>
+                  <marker id="arrow2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                    <path d="M0,0 L8,4 L0,8 Z" fill="#0f766e"></path>
+                  </marker>
+                </defs>
+                <text x="24" y="32" class="label" style="font-weight:800">输入特征连接到一个输出</text>
+                <circle cx="80" cy="78" r="21" class="node"></circle>
+                <circle cx="80" cy="130" r="21" class="node"></circle>
+                <circle cx="80" cy="182" r="21" class="node"></circle>
+                <text x="69" y="83" class="label">x₁</text>
+                <text x="69" y="135" class="label">x₂</text>
+                <text x="69" y="187" class="label">x₃</text>
+                <circle cx="312" cy="130" r="34" class="node-out"></circle>
+                <text x="294" y="136" class="label">ŷ</text>
+                <line x1="101" y1="78" x2="278" y2="121" class="edge" marker-end="url(#arrow2)"></line>
+                <line x1="101" y1="130" x2="278" y2="130" class="edge" marker-end="url(#arrow2)"></line>
+                <line x1="101" y1="182" x2="278" y2="139" class="edge" marker-end="url(#arrow2)"></line>
+                <text x="157" y="77" class="tiny">× w₁</text>
+                <text x="157" y="121" class="tiny">× w₂</text>
+                <text x="157" y="178" class="tiny">× w₃</text>
+                <text x="268" y="190" class="tiny">再加偏置 b</text>
+              </svg>
+            </div>
+            <div class="example">
+              <h3>房价预测例子</h3>
+              <p>假设只看两个特征：面积和房龄。</p>
+              <div class="formula">price = w_area · area + w_age · age + b</div>
+              <p>如果面积权重为正，面积越大预测价格越高；如果房龄权重为负，房龄越大预测价格越低。偏置可以理解为基础价格。</p>
+            </div>
+          </div>
+
+          <div class="warn">
+            <h3>线性模型的局限</h3>
+            <p>线性模型只能表达“特征增加一点，输出按固定比例变化”的关系。它很难处理复杂非线性数据，例如图像里一个像素的重要性往往取决于周围像素，而不是单独由这个像素决定。</p>
+          </div>
+        </section>
+
+        <section id="softmax">
+          <h2>三、分类任务与 softmax</h2>
+          <div class="grid-2">
+            <div class="card">
+              <h3>回归 vs 分类</h3>
+              <p><strong>回归任务</strong>预测连续数值，例如房价、分数、温度。</p>
+              <p><strong>分类任务</strong>预测类别，例如猫/狗/鸡，垃圾邮件/正常邮件。</p>
+            </div>
+            <div class="card">
+              <h3>logits / scores 是什么</h3>
+              <p>神经网络最后一层通常先输出一组原始分数，叫 logits 或 scores。它们可以为负，也不保证相加为 1，所以不能直接当概率。</p>
+            </div>
+          </div>
+          <div class="formula">softmax(oᵢ) = exp(oᵢ) / Σⱼ exp(oⱼ)<small>oᵢ 是第 i 类的 logit；分母是所有类别 exp(logit) 的总和。</small></div>
+          <div class="grid-3">
+            <div class="note"><strong>作用 1</strong><br>通过 exp 把输出变成正数。</div>
+            <div class="note"><strong>作用 2</strong><br>通过除以总和，让所有类别概率加起来等于 1。</div>
+            <div class="note"><strong>作用 3</strong><br>分数越大的类别，softmax 后概率通常越大。</div>
+          </div>
+
+          <h3>三分类例子</h3>
+          <p>给定 <span class="kbd">logits = [2.0, 1.0, 0.1]</span>，softmax 后约为：</p>
+          <div class="interactive">
+            <div class="flow">
+              <div class="step">logits<br>[2.0, 1.0, 0.1]</div>
+              <div class="step">exp<br>[7.39, 2.72, 1.11]</div>
+              <div class="step">除以总和<br>11.22</div>
+              <div class="step">probabilities<br>[0.66, 0.24, 0.10]</div>
+            </div>
+            <p>最高 logit 是第 0 类，所以最高概率也是第 0 类。softmax 不改变大小顺序，但会把分数转成可解释的概率分布。</p>
+          </div>
+
+          <div class="exam">
+            <h3>考试怎么答：softmax</h3>
+            <p>softmax 常用于多分类任务的输出层。它把网络输出的未归一化分数 logits 转换为概率分布，使每个概率非负且所有类别概率之和为 1，同时保留类别分数的大小顺序，便于选择概率最大的类别作为预测结果。</p>
+          </div>
+        </section>
+
+        <section id="ce">
+          <h2>四、交叉熵损失</h2>
+          <div class="concept">
+            <div class="concept-row">
+              <b>直觉解释</b>
+              <div>损失函数像老师批改答案：预测越接近真实答案，loss 越小；预测越自信地错，loss 越大。</div>
+            </div>
+            <div class="concept-row">
+              <b>数学公式</b>
+              <div><div class="formula">L = - Σᵢ yᵢ log(ŷᵢ)</div></div>
+            </div>
+            <div class="concept-row">
+              <b>简单例子</b>
+              <div>真实类别是 class 1，one-hot 标签是 <span class="kbd">[0, 1, 0]</span>。因为只有真实类别位置是 1，所以交叉熵只剩 <span class="kbd">-log(ŷ_class1)</span>。</div>
+            </div>
+            <div class="concept-row">
+              <b>考试怎么答</b>
+              <div>交叉熵衡量真实标签分布和预测概率分布之间的差异。分类任务中它会鼓励模型提高真实类别的预测概率。</div>
+            </div>
+          </div>
+
+          <h3>1. one-hot label 是什么</h3>
+          <p>如果有 3 个类别，真实类别是第 1 类，则标签写成 <span class="kbd">[0, 1, 0]</span>：真实类别位置为 1，其他位置为 0。</p>
+
+          <h3>2. 为什么只关心真实类别概率</h3>
+          <p>因为 one-hot 标签中只有真实类别的 <span class="kbd">yᵢ = 1</span>，其他类别的 <span class="kbd">yᵢ = 0</span>，所以求和里其他项都消失。</p>
+          <div class="grid-2">
+            <div class="example">
+              <h3>预测较好</h3>
+              <p>真实类别 class 1，预测概率 <span class="kbd">[0.10, 0.80, 0.10]</span>。</p>
+              <div class="formula">L = -log(0.80) ≈ 0.223</div>
+              <p>真实类别概率高，loss 小。</p>
+            </div>
+            <div class="warn">
+              <h3>预测较差</h3>
+              <p>真实类别 class 1，预测概率 <span class="kbd">[0.80, 0.15, 0.05]</span>。</p>
+              <div class="formula">L = -log(0.15) ≈ 1.897</div>
+              <p>真实类别概率低，loss 大。</p>
+            </div>
+          </div>
+          <p>所以要记住：<strong>正确类别概率越高，交叉熵越小；正确类别概率越低，交叉熵越大。</strong></p>
+
+          <div class="note">
+            <h3>softmax + cross entropy 为什么常常一起使用</h3>
+            <p>softmax 负责把 logits 转成概率分布；cross entropy 负责比较这个概率分布和真实 one-hot 标签的差距。它们正好组成分类任务里“输出概率 + 计算错误程度”的标准组合。</p>
+          </div>
+
+          <h3>3. 损失函数到底在训练中做什么</h3>
+          <p>损失函数不是只用来“打分”的，它还是训练的方向盘。模型每次预测后，loss 会告诉我们这次预测离真实答案有多远；反向传播再根据 loss 计算每个参数对错误的责任，最后优化器把参数往让 loss 变小的方向移动。</p>
+          <div class="flow">
+            <div class="step">预测概率 ŷ</div>
+            <div class="step">和真实标签 y 比较</div>
+            <div class="step">得到 loss</div>
+            <div class="step">根据 loss 调参数</div>
+          </div>
+
+          <h3>4. 为什么交叉熵会惩罚“自信地错”</h3>
+          <p>交叉熵对真实类别概率取 <span class="kbd">-log(p)</span>。这个函数有一个很重要的形状：当真实类别概率 p 接近 1 时，loss 接近 0；当 p 接近 0 时，loss 会变得非常大。</p>
+          <div class="grid-3">
+            <div class="card">
+              <strong>p = 0.90</strong>
+              <div class="formula">-log(0.90) ≈ 0.105</div>
+              <p>模型很相信正确答案，损失很小。</p>
+            </div>
+            <div class="card">
+              <strong>p = 0.50</strong>
+              <div class="formula">-log(0.50) ≈ 0.693</div>
+              <p>模型不太确定，损失中等。</p>
+            </div>
+            <div class="warn">
+              <strong>p = 0.01</strong>
+              <div class="formula">-log(0.01) ≈ 4.605</div>
+              <p>真实类别概率极低，说明模型错得很自信，损失很大。</p>
+            </div>
+          </div>
+
+          <h3>5. softmax + 交叉熵的梯度直觉</h3>
+          <p>教材里常见一个非常重要的结论：当 softmax 和交叉熵组合使用时，logits 的梯度形式会变得很简洁：</p>
+          <div class="formula">∂L / ∂oᵢ = ŷᵢ - yᵢ<small>oᵢ 是第 i 类 logit；ŷᵢ 是 softmax 后的预测概率；yᵢ 是真实 one-hot 标签。</small></div>
+          <p>这句话的意思是：<strong>参数更新的信号，本质上来自“预测概率 - 真实标签”。</strong>如果某个错误类别预测概率太高，梯度会把它压下去；如果真实类别预测概率太低，梯度会把它抬上来。</p>
+          <div class="example">
+            <h3>用一个三分类例子看梯度方向</h3>
+            <p>真实标签是 class 1：<span class="kbd">y = [0, 1, 0]</span>。模型预测：<span class="kbd">ŷ = [0.66, 0.24, 0.10]</span>。</p>
+            <div class="formula">ŷ - y = [0.66, -0.76, 0.10]</div>
+            <p>第 0 类预测太高，所以梯度为正，训练会倾向于降低它的 logit；第 1 类是真实类别但概率太低，所以梯度为负，训练会倾向于提高它的 logit；第 2 类也略高，也会被压低。</p>
+          </div>
+
+          <div class="warn">
+            <h3>易错点</h3>
+            <p><strong>softmax 是把输出变成概率；cross entropy 是计算预测概率和真实标签之间的差距。</strong>两者不是同一个东西。</p>
+          </div>
+        </section>
+
+        <section id="activation">
+          <h2>五、为什么需要激活函数</h2>
+          <p>这是 MLP 的核心。你可以把这节当成今天最重要的考试题。</p>
+          <div class="warn">
+            <h3>先看一个关键事实</h3>
+            <p>如果没有激活函数，多层线性层叠加以后仍然是线性模型。层数再多，也只是把一个线性变换改写成另一个线性变换。</p>
+          </div>
+
+          <h3>1. 推导：两层线性层为什么仍然线性</h3>
+          <div class="formula">h = W₁x + b₁
+ŷ = W₂h + b₂
+ŷ = W₂(W₁x + b₁) + b₂
+ŷ = W₂W₁x + W₂b₁ + b₂
+
+令 W = W₂W₁，b = W₂b₁ + b₂
+所以 ŷ = Wx + b</div>
+          <p>这说明：中间加了隐藏层，但如果隐藏层只是线性变换，最后仍然可以合并成一个新的 <span class="kbd">Wx + b</span>。</p>
+
+          <div class="exam">
+            <h3>考试必背</h3>
+            <p>多层线性变换的组合仍然是线性变换。如果没有激活函数，无论神经网络有多少层，都等价于一个单层线性模型，无法学习非线性关系。激活函数引入非线性，使 MLP 能够拟合复杂函数和非线性决策边界。</p>
+          </div>
+
+          <h3>2. ReLU：最常用的激活函数</h3>
+          <div class="formula">ReLU(x) = max(0, x)</div>
+          <p>ReLU 的规则非常直接：输入小于 0，就输出 0；输入大于 0，就原样输出。它简单、计算快，并且在深层网络中通常比 sigmoid 更容易训练。</p>
+          <div class="interactive">
+            <h3>滑块演示：ReLU 和 sigmoid 的输出</h3>
+            <p>拖动 x，观察两个激活函数的输出变化。</p>
+            <div class="controls">
+              <input id="xSlider" type="range" min="-8" max="8" step="0.1" value="1.5" aria-label="x 值">
+              <strong id="xValue">x = 1.5</strong>
+            </div>
+            <div class="grid-2">
+              <div class="card">
+                <strong>ReLU(x)</strong>
+                <div id="reluValue" class="formula">1.50</div>
+              </div>
+              <div class="card">
+                <strong>sigmoid(x)</strong>
+                <div id="sigmoidValue" class="formula">0.82</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="diagram">
+              <h3>ReLU 曲线</h3>
+              <svg viewBox="0 0 420 260" role="img" aria-label="ReLU 曲线">
+                <line x1="40" y1="210" x2="390" y2="210" stroke="#94a3b8"></line>
+                <line x1="210" y1="26" x2="210" y2="230" stroke="#94a3b8"></line>
+                <text x="382" y="232" class="tiny">x</text>
+                <text x="218" y="36" class="tiny">y</text>
+                <path d="M55 210 L210 210 L370 50" fill="none" stroke="#0f766e" stroke-width="4"></path>
+                <text x="55" y="238" class="tiny">负数输出 0</text>
+                <text x="260" y="92" class="tiny">正数原样通过</text>
+              </svg>
+            </div>
+            <div class="diagram">
+              <h3>sigmoid 曲线</h3>
+              <svg viewBox="0 0 420 260" role="img" aria-label="sigmoid 曲线">
+                <line x1="40" y1="210" x2="390" y2="210" stroke="#94a3b8"></line>
+                <line x1="210" y1="26" x2="210" y2="230" stroke="#94a3b8"></line>
+                <line x1="40" y1="60" x2="390" y2="60" stroke="#cbd5e1" stroke-dasharray="5 5"></line>
+                <path d="M50 200 C115 197, 145 176, 180 142 C215 108, 242 76, 370 62" fill="none" stroke="#2563eb" stroke-width="4"></path>
+                <text x="275" y="48" class="tiny">接近 1</text>
+                <text x="54" y="197" class="tiny">接近 0</text>
+                <text x="218" y="138" class="tiny">x=0 时约 0.5</text>
+              </svg>
+            </div>
+          </div>
+
+          <h3>3. sigmoid 和 tanh 简单了解</h3>
+          <div class="grid-2">
+            <div class="card">
+              <h3>sigmoid</h3>
+              <div class="formula">sigmoid(x) = 1 / (1 + exp(-x))</div>
+              <p>输出范围是 (0, 1)，适合表示二分类概率，但在隐藏层中容易出现梯度变小的问题。</p>
+            </div>
+            <div class="card">
+              <h3>tanh</h3>
+              <div class="formula">tanh(x) = (1 - exp(-2x)) / (1 + exp(-2x))</div>
+              <p>输出范围是 (-1, 1)，以 0 为中心；形状类似 sigmoid，但范围不同。</p>
+            </div>
+          </div>
+
+          <h3>4. 线性边界 vs 非线性边界</h3>
+          <div class="grid-2">
+            <div class="diagram">
+              <h3>没有激活函数：直线边界</h3>
+              <svg viewBox="0 0 420 260" role="img" aria-label="线性分类边界">
+                <rect x="30" y="24" width="360" height="210" rx="8" fill="#fffefa" stroke="#dbe0d4"></rect>
+                <line x1="85" y1="218" x2="340" y2="48" stroke="#dc2626" stroke-width="4"></line>
+                <g fill="#2563eb">
+                  <circle cx="90" cy="70" r="7"></circle><circle cx="130" cy="88" r="7"></circle><circle cx="155" cy="55" r="7"></circle><circle cx="198" cy="96" r="7"></circle>
+                </g>
+                <g fill="#d97706">
+                  <rect x="235" y="155" width="14" height="14" rx="3"></rect><rect x="280" y="180" width="14" height="14" rx="3"></rect><rect x="316" y="137" width="14" height="14" rx="3"></rect><rect x="208" y="195" width="14" height="14" rx="3"></rect>
+                </g>
+                <text x="92" y="244" class="tiny">只能用一条直线切分空间</text>
+              </svg>
+            </div>
+            <div class="diagram">
+              <h3>有激活函数的 MLP：曲线边界</h3>
+              <svg viewBox="0 0 420 260" role="img" aria-label="非线性分类边界">
+                <rect x="30" y="24" width="360" height="210" rx="8" fill="#fffefa" stroke="#dbe0d4"></rect>
+                <path d="M55 174 C94 91, 151 176, 198 118 S286 39, 355 130" fill="none" stroke="#0f766e" stroke-width="4"></path>
+                <g fill="#2563eb">
+                  <circle cx="83" cy="76" r="7"></circle><circle cx="138" cy="130" r="7"></circle><circle cx="196" cy="77" r="7"></circle><circle cx="286" cy="82" r="7"></circle>
+                </g>
+                <g fill="#d97706">
+                  <rect x="82" y="184" width="14" height="14" rx="3"></rect><rect x="162" y="190" width="14" height="14" rx="3"></rect><rect x="242" y="155" width="14" height="14" rx="3"></rect><rect x="326" y="174" width="14" height="14" rx="3"></rect>
+                </g>
+                <text x="86" y="244" class="tiny">多个非线性变换可组合复杂边界</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section id="mlp">
+          <h2>六、MLP 的结构</h2>
+          <p>MLP 是 <strong>Multi-Layer Perceptron</strong>，中文叫多层感知机。它是在输入层和输出层之间加入一个或多个隐藏层，并在隐藏层后使用激活函数。</p>
+          <div class="formula">input → linear layer → activation → hidden layer → linear layer → output</div>
+          <div class="formula">分类任务完整流程：
+x → Linear → ReLU → Linear → softmax → class probabilities</div>
+          <div class="formula">h = σ(W₁x + b₁)
+o = W₂h + b₂
+ŷ = softmax(o)</div>
+
+          <div class="grid-2">
+            <div class="card">
+              <h3>三种层</h3>
+              <p><strong>input layer</strong>：输入特征，本身通常不算计算层。</p>
+              <p><strong>hidden layer</strong>：隐藏层，学习中间表示。</p>
+              <p><strong>output layer</strong>：输出 logits 或预测值。</p>
+            </div>
+            <div class="card">
+              <h3>hidden units / neurons</h3>
+              <p>隐藏单元就是隐藏层里的神经元。每个隐藏单元接收上一层输入，做一次加权求和、加偏置，再通过激活函数输出一个新特征。</p>
+            </div>
+          </div>
+
+          <div class="diagram">
+            <h3>一个 3-4-2 的 MLP</h3>
+            <svg viewBox="0 0 760 360" role="img" aria-label="输入层3个节点隐藏层4个节点输出层2个节点的MLP">
+              <defs>
+                <marker id="arrow3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 Z" fill="#7a8b82"></path>
+                </marker>
+              </defs>
+              <text x="90" y="36" class="label" style="font-weight:800">Input layer</text>
+              <text x="330" y="36" class="label" style="font-weight:800">Hidden layer + ReLU</text>
+              <text x="610" y="36" class="label" style="font-weight:800">Output layer</text>
+              <g id="mlpEdges" stroke="#8a9990" stroke-width="1.2" opacity=".65"></g>
+              <g>
+                <circle cx="130" cy="105" r="22" class="node"></circle>
+                <circle cx="130" cy="180" r="22" class="node"></circle>
+                <circle cx="130" cy="255" r="22" class="node"></circle>
+                <text x="121" y="110" class="label">x₁</text>
+                <text x="121" y="185" class="label">x₂</text>
+                <text x="121" y="260" class="label">x₃</text>
+              </g>
+              <g>
+                <circle cx="390" cy="75" r="22" class="node-out"></circle>
+                <circle cx="390" cy="145" r="22" class="node-out"></circle>
+                <circle cx="390" cy="215" r="22" class="node-out"></circle>
+                <circle cx="390" cy="285" r="22" class="node-out"></circle>
+                <text x="381" y="80" class="label">h₁</text>
+                <text x="381" y="150" class="label">h₂</text>
+                <text x="381" y="220" class="label">h₃</text>
+                <text x="381" y="290" class="label">h₄</text>
+              </g>
+              <g>
+                <circle cx="640" cy="135" r="24" class="node"></circle>
+                <circle cx="640" cy="225" r="24" class="node"></circle>
+                <text x="631" y="141" class="label">o₁</text>
+                <text x="631" y="231" class="label">o₂</text>
+              </g>
+              <line x1="152" y1="105" x2="368" y2="75" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="152" y1="105" x2="368" y2="145" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="152" y1="105" x2="368" y2="215" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="152" y1="105" x2="368" y2="285" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="152" y1="180" x2="368" y2="75" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="152" y1="180" x2="368" y2="145" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="152" y1="180" x2="368" y2="215" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="152" y1="180" x2="368" y2="285" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="152" y1="255" x2="368" y2="75" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="152" y1="255" x2="368" y2="145" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="152" y1="255" x2="368" y2="215" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="152" y1="255" x2="368" y2="285" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="412" y1="75" x2="616" y2="135" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="412" y1="145" x2="616" y2="135" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="412" y1="215" x2="616" y2="135" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="412" y1="285" x2="616" y2="135" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="412" y1="75" x2="616" y2="225" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="412" y1="145" x2="616" y2="225" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="412" y1="215" x2="616" y2="225" class="edge" marker-end="url(#arrow3)"></line>
+              <line x1="412" y1="285" x2="616" y2="225" class="edge" marker-end="url(#arrow3)"></line>
+              <text x="236" y="328" class="tiny">Linear: W₁x+b₁</text>
+              <text x="445" y="328" class="tiny">Linear: W₂h+b₂</text>
+            </svg>
+          </div>
+
+          <div class="exam">
+            <h3>MLP 和线性模型的本质区别</h3>
+            <p>线性模型只有一次线性变换，表达能力有限；MLP 增加隐藏层，并在隐藏层后加入非线性激活函数，因此可以学习复杂特征和非线性决策边界。</p>
+          </div>
+        </section>
+
+        <section id="training">
+          <h2>七、完整训练流程</h2>
+          <p>训练的核心问题是：模型一开始的参数通常是随机的，预测会错。我们需要一种方法，根据错误程度自动调整参数，让下一次预测更好。这个过程就靠损失函数、反向传播和优化器配合完成。</p>
+          <div class="flow">
+            <div class="step">1 输入数据 x</div>
+            <div class="step">2 前向传播</div>
+            <div class="step">3 得到预测 ŷ</div>
+            <div class="step">4 计算 loss</div>
+            <div class="step">5 反向传播</div>
+            <div class="step">6 更新 w 和 b</div>
+            <div class="step">7 重复训练</div>
+          </div>
+          <div class="note">
+            <h3>一句话记忆</h3>
+            <p>前向传播负责“算预测”，损失函数负责“评估错多少”，反向传播负责“算参数该往哪改”，优化器负责“真的去改参数”。</p>
+          </div>
+
+          <h3>1. 前向传播：从输入一路算到 loss</h3>
+          <p>前向传播就是按网络结构从左到右计算。以一个分类 MLP 为例：</p>
+          <div class="formula">h = ReLU(W₁x + b₁)
+o = W₂h + b₂
+ŷ = softmax(o)
+L = CrossEntropy(y, ŷ)</div>
+          <p>这里每一步都会产生中间结果。反向传播时，这些中间结果会被用来计算梯度，所以训练时不只是得到最终答案，还要记录计算过程。</p>
+
+          <h3>2. 梯度：参数对 loss 的影响方向</h3>
+          <p>梯度可以理解为一个问题的答案：<strong>如果这个参数稍微变大一点，loss 会变大还是变小？变化快不快？</strong></p>
+          <div class="grid-2">
+            <div class="card">
+              <h3>梯度为正</h3>
+              <p>参数变大时 loss 倾向于变大。为了让 loss 下降，参数应该减小。</p>
+            </div>
+            <div class="card">
+              <h3>梯度为负</h3>
+              <p>参数变大时 loss 倾向于变小。为了让 loss 下降，参数应该增大。</p>
+            </div>
+          </div>
+          <div class="formula">参数更新的基本形式：
+w ← w - η · ∂L/∂w
+b ← b - η · ∂L/∂b<small>η 是学习率，控制每次更新走多大一步。</small></div>
+
+          <h3>3. 反向传播：用链式法则把责任分回去</h3>
+          <p>反向传播不是一种新的数学魔法，它主要是在神经网络计算图上高效使用链式法则。因为 loss 是由最后输出算出来的，而最后输出又依赖前一层，前一层又依赖更前面的层，所以我们需要从后往前一层层计算梯度。</p>
+          <div class="flow">
+            <div class="step">loss</div>
+            <div class="step">输出层参数</div>
+            <div class="step">隐藏层输出</div>
+            <div class="step">隐藏层参数</div>
+            <div class="step">输入附近参数</div>
+          </div>
+          <div class="formula">链式法则直觉：
+如果 L 依赖 y，y 依赖 h，h 依赖 w
+那么 ∂L/∂w = ∂L/∂y · ∂y/∂h · ∂h/∂w</div>
+          <p>这就是“反向”的原因：先知道最终 loss 对输出的影响，再逐层往前传，把每个参数对 loss 的影响都算出来。</p>
+
+          <h3>4. 一个极简线性回归例子</h3>
+          <p>假设只有一个输入特征，模型是 <span class="kbd">ŷ = wx + b</span>，用平方损失：</p>
+          <div class="formula">L = 1/2 · (ŷ - y)²</div>
+          <p>如果某个样本 <span class="kbd">x = 2</span>，真实值 <span class="kbd">y = 10</span>，当前模型预测 <span class="kbd">ŷ = 6</span>，那么误差是 <span class="kbd">ŷ - y = -4</span>，说明预测偏低。</p>
+          <div class="formula">∂L/∂w = (ŷ - y) · x = -4 × 2 = -8
+∂L/∂b = (ŷ - y) = -4</div>
+          <p>梯度是负数，按照 <span class="kbd">w ← w - η·梯度</span> 更新时，w 和 b 会增大，下一次预测值就会被推高。这和直觉一致：预测太低，就应该让模型输出变大。</p>
+
+          <h3>5. 一个分类任务里的反向传播直觉</h3>
+          <p>分类时，softmax + 交叉熵会产生 <span class="kbd">ŷ - y</span> 这样的误差信号。它会从输出层开始往前传：</p>
+          <div class="flow">
+            <div class="step">真实类概率太低</div>
+            <div class="step">提高真实类 logit</div>
+            <div class="step">压低错误类 logit</div>
+            <div class="step">调整隐藏层特征</div>
+            <div class="step">更新 W、b</div>
+          </div>
+          <p>所以反向传播不只是改最后一层，它还会告诉前面的隐藏层：你提取的特征是否有助于分类，如果没用，就通过梯度慢慢调整。</p>
+
+          <div class="warn">
+            <h3>易错点：反向传播和梯度下降不是一回事</h3>
+            <p><strong>反向传播</strong>负责计算梯度，也就是每个参数该怎么影响 loss；<strong>梯度下降/优化器</strong>负责使用这些梯度更新参数。前者是“算方向”，后者是“走一步”。</p>
+          </div>
+
+          <div class="exam">
+            <h3>考试怎么答：反向传播</h3>
+            <p>反向传播是一种在神经网络中高效计算梯度的方法。它从损失函数开始，利用链式法则将误差信号从输出层逐层传回前面的层，计算各层参数对 loss 的偏导数。随后优化器根据这些梯度更新权重和偏置，使损失函数逐渐减小。</p>
+          </div>
+        </section>
+
+        <section id="exam">
+          <h2>八、考试高频问题与标准答案</h2>
+          <div class="quiz-item">
+            <strong>1. 什么是线性神经网络？</strong>
+            <p>线性神经网络是由线性变换或仿射变换构成的简单神经网络，例如线性回归和 softmax 回归。其核心计算是输入特征的加权和加偏置。</p>
+          </div>
+          <div class="quiz-item">
+            <strong>2. softmax 的作用是什么？</strong>
+            <p>softmax 将 logits 转换为概率分布，使输出非负、总和为 1，并保持分数越大概率越大的关系。</p>
+          </div>
+          <div class="quiz-item">
+            <strong>3. 为什么分类任务常用 cross entropy？</strong>
+            <p>因为交叉熵可以衡量真实标签分布与预测概率分布的差异，并且会鼓励模型提高真实类别的预测概率。</p>
+          </div>
+          <div class="quiz-item">
+            <strong>4. 为什么 MLP 需要激活函数？</strong>
+            <p>激活函数引入非线性，否则多层线性变换可以合并成一个线性变换，网络无法学习复杂非线性关系。</p>
+          </div>
+          <div class="quiz-item">
+            <strong>5. 没有激活函数的多层网络为什么等价于单层线性模型？</strong>
+            <p>因为线性或仿射变换的组合仍然是线性或仿射变换，例如 W₂(W₁x+b₁)+b₂ 可以写成 Wx+b。</p>
+          </div>
+          <div class="quiz-item">
+            <strong>6. ReLU 的优点是什么？</strong>
+            <p>ReLU 公式简单、计算快，对正数梯度传递直接，通常能缓解 sigmoid/tanh 在深层网络中容易出现的梯度消失问题。</p>
+          </div>
+          <div class="quiz-item">
+            <strong>7. MLP 和线性模型有什么区别？</strong>
+            <p>MLP 比线性模型多了隐藏层和非线性激活函数，因此表达能力更强，可以拟合非线性函数和非线性分类边界。</p>
+          </div>
+          <div class="quiz-item">
+            <strong>8. 一个分类 MLP 的前向传播过程是什么？</strong>
+            <p>输入 x 先经过线性层和激活函数得到隐藏表示 h，再经过输出线性层得到 logits，最后通过 softmax 得到类别概率。</p>
+          </div>
+        </section>
+
+        <section id="quiz">
+          <h2>九、自测题</h2>
+          <p>点击按钮查看答案。打印时答案会自动显示。</p>
+          <div class="quiz-item">
+            <strong>1. 判断题：公式 ŷ = Xw + b 中，w 表示输入样本本身。</strong>
+            <br><button type="button" data-answer="a1">显示答案</button>
+            <div id="a1" class="answer">错误。X 表示输入特征，w 表示权重，b 表示偏置，ŷ 表示预测值。</div>
+          </div>
+          <div class="quiz-item">
+            <strong>2. 选择题：线性模型的本质是？</strong>
+            <p>A. 随机猜测　B. 加权求和 + 偏置　C. 只做 softmax　D. 一定有隐藏层</p>
+            <button type="button" data-answer="a2">显示答案</button>
+            <div id="a2" class="answer">答案：B。线性模型通过权重控制各特征影响，再加偏置得到输出。</div>
+          </div>
+          <div class="quiz-item">
+            <strong>3. 判断题：logits 可以直接当概率，因为它们来自神经网络。</strong>
+            <br><button type="button" data-answer="a3">显示答案</button>
+            <div id="a3" class="answer">错误。logits 可能为负，也不保证总和为 1，需要 softmax 转换成概率分布。</div>
+          </div>
+          <div class="quiz-item">
+            <strong>4. 简答题：softmax 的三个作用是什么？</strong>
+            <br><button type="button" data-answer="a4">显示答案</button>
+            <div id="a4" class="answer">把输出变成正数；让所有类别概率之和为 1；让分数更大的类别得到更大的概率。</div>
+          </div>
+          <div class="quiz-item">
+            <strong>5. 选择题：真实类别是 class 2，one-hot 标签应该是？</strong>
+            <p>A. [1,0,0]　B. [0,1,0]　C. [0,0,1]　D. [1,1,1]</p>
+            <button type="button" data-answer="a5">显示答案</button>
+            <div id="a5" class="answer">答案：C。若按 class 0、class 1、class 2 编号，class 2 的 one-hot 是 [0,0,1]。</div>
+          </div>
+          <div class="quiz-item">
+            <strong>6. 判断题：交叉熵越小，通常表示预测越接近真实标签。</strong>
+            <br><button type="button" data-answer="a6">显示答案</button>
+            <div id="a6" class="answer">正确。对 one-hot 标签来说，真实类别的预测概率越高，-log(概率) 越小。</div>
+          </div>
+          <div class="quiz-item">
+            <strong>7. 简答题：为什么没有激活函数的多层网络仍然是线性模型？</strong>
+            <br><button type="button" data-answer="a7">显示答案</button>
+            <div id="a7" class="answer">因为线性变换叠加仍是线性变换。例如 W₂(W₁x+b₁)+b₂ 可以合并成 Wx+b。</div>
+          </div>
+          <div class="quiz-item">
+            <strong>8. 选择题：ReLU(x) 的公式是？</strong>
+            <p>A. 1/(1+exp(-x))　B. max(0,x)　C. x²　D. softmax(x)</p>
+            <button type="button" data-answer="a8">显示答案</button>
+            <div id="a8" class="answer">答案：B。ReLU(x)=max(0,x)，负数输出 0，正数原样输出。</div>
+          </div>
+          <div class="quiz-item">
+            <strong>9. 判断题：MLP 与线性模型的区别只在于参数更多，与激活函数无关。</strong>
+            <br><button type="button" data-answer="a9">显示答案</button>
+            <div id="a9" class="answer">错误。关键区别是 MLP 有隐藏层并使用非线性激活函数；没有激活函数，参数再多也可能退化为线性模型。</div>
+          </div>
+          <div class="quiz-item">
+            <strong>10. 简答题：分类 MLP 的输出层为什么通常接 softmax？</strong>
+            <br><button type="button" data-answer="a10">显示答案</button>
+            <div id="a10" class="answer">因为输出层先给出 logits，softmax 能把 logits 转成各类别概率，之后可以用交叉熵计算分类损失。</div>
+          </div>
+        </section>
+
+        <section id="summary">
+          <h2>十、最后总结</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>概念</th>
+                <th>作用</th>
+                <th>公式</th>
+                <th>考试关键词</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>线性模型</td>
+                <td>根据输入特征预测连续值或 logits</td>
+                <td>ŷ = Xw + b</td>
+                <td>加权求和、偏置、仿射变换</td>
+              </tr>
+              <tr>
+                <td>softmax</td>
+                <td>把 logits 转换为类别概率分布</td>
+                <td>exp(oᵢ) / Σⱼ exp(oⱼ)</td>
+                <td>非负、总和为 1、概率分布</td>
+              </tr>
+              <tr>
+                <td>交叉熵</td>
+                <td>衡量预测概率与真实标签的差距</td>
+                <td>L = -Σᵢ yᵢ log(ŷᵢ)</td>
+                <td>真实类别概率越高，loss 越小</td>
+              </tr>
+              <tr>
+                <td>激活函数</td>
+                <td>在网络中引入非线性</td>
+                <td>h = σ(Wx+b)</td>
+                <td>非线性、表达能力、决策边界</td>
+              </tr>
+              <tr>
+                <td>ReLU</td>
+                <td>常用隐藏层激活函数</td>
+                <td>ReLU(x)=max(0,x)</td>
+                <td>简单、快、正数通过、负数置零</td>
+              </tr>
+              <tr>
+                <td>MLP</td>
+                <td>用隐藏层和激活函数学习复杂函数</td>
+                <td>h=σ(W₁x+b₁), ŷ=softmax(W₂h+b₂)</td>
+                <td>输入层、隐藏层、输出层、非线性</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="print-tip">打印提示：浏览器中按 <span class="kbd">Cmd/Ctrl + P</span> 可保存为 PDF；页面已包含打印样式，自测答案会在打印版中显示。</p>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Quiz answer toggles.
+    document.querySelectorAll("button[data-answer]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var answer = document.getElementById(button.dataset.answer);
+        if (!answer) return;
+        answer.classList.toggle("show");
+        button.textContent = answer.classList.contains("show") ? "隐藏答案" : "显示答案";
+      });
+    });
+
+    // Small activation function demo.
+    var slider = document.getElementById("xSlider");
+    var xValue = document.getElementById("xValue");
+    var reluValue = document.getElementById("reluValue");
+    var sigmoidValue = document.getElementById("sigmoidValue");
+
+    function sigmoid(x) {
+      return 1 / (1 + Math.exp(-x));
+    }
+
+    function updateActivationDemo() {
+      var x = Number(slider.value);
+      xValue.textContent = "x = " + x.toFixed(1);
+      reluValue.textContent = Math.max(0, x).toFixed(2);
+      sigmoidValue.textContent = sigmoid(x).toFixed(2);
+    }
+
+    if (slider) {
+      slider.addEventListener("input", updateActivationDemo);
+      updateActivationDemo();
+    }
+  </script>
+</body>
+</html>

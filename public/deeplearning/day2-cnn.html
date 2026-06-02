@@ -1,0 +1,1465 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CNN 卷积神经网络系统学习与输出尺寸训练</title>
+  <style>
+    :root {
+      --bg: #f5f7f3;
+      --paper: #fffefa;
+      --ink: #17201b;
+      --muted: #66716a;
+      --line: #d9e0d3;
+      --accent: #0f766e;
+      --accent-dark: #0b4f4a;
+      --orange: #d97706;
+      --blue: #2563eb;
+      --red: #dc2626;
+      --green: #16a34a;
+      --soft: #ecfdf5;
+      --warn: #fff7ed;
+      --mist: #eef6ff;
+      --rose: #fff1f2;
+      --shadow: 0 18px 44px rgba(31, 41, 35, .08);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 16% 8%, rgba(15, 118, 110, .10), transparent 25rem),
+        radial-gradient(circle at 88% 12%, rgba(217, 119, 6, .10), transparent 24rem),
+        linear-gradient(180deg, #fbfcf7 0%, var(--bg) 46%, #f8faf5 100%);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+      line-height: 1.72;
+      letter-spacing: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    code {
+      padding: 1px 5px;
+      border-radius: 5px;
+      background: #eef3ec;
+      color: #143b38;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: .94em;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 18px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 254, 250, .90);
+      backdrop-filter: blur(12px);
+      overflow: auto;
+    }
+
+    .brand {
+      display: grid;
+      gap: 8px;
+      padding: 0 8px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand b {
+      font-size: 19px;
+      line-height: 1.3;
+    }
+
+    .brand span,
+    .toc-title {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    nav {
+      display: grid;
+      gap: 6px;
+      margin-top: 18px;
+    }
+
+    nav a {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 7px;
+      color: #36433c;
+      font-size: 14px;
+      line-height: 1.35;
+      transition: background .18s ease, color .18s ease, transform .18s ease;
+    }
+
+    nav a:hover {
+      background: #eef7f4;
+      color: var(--accent);
+      transform: translateX(2px);
+    }
+
+    main { min-width: 0; }
+
+    .hero {
+      min-height: 72vh;
+      display: grid;
+      align-items: center;
+      padding: 72px 7vw 46px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(112deg, rgba(255, 254, 250, .94), rgba(255, 254, 250, .70)),
+        repeating-linear-gradient(90deg, rgba(15, 118, 110, .08) 0 1px, transparent 1px 64px),
+        repeating-linear-gradient(0deg, rgba(37, 99, 235, .055) 0 1px, transparent 1px 64px);
+    }
+
+    .hero-inner {
+      max-width: 1160px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+      gap: 44px;
+      align-items: center;
+    }
+
+    .hero-inner > * { min-width: 0; }
+
+    .eyebrow {
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 14px 0 18px;
+      max-width: 760px;
+      font-size: clamp(32px, 5vw, 58px);
+      line-height: 1.04;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .lead {
+      max-width: 720px;
+      color: #3c4942;
+      font-size: clamp(15px, 1.7vw, 19px);
+      line-height: 1.65;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .tag {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: rgba(255, 255, 255, .70);
+      color: #41504a;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .hero-visual {
+      min-height: 362px;
+      border: 1px solid #cdd7cc;
+      border-radius: var(--radius);
+      background: rgba(255, 254, 250, .78);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      animation: rise .68s ease both;
+    }
+
+    @keyframes rise {
+      from { transform: translateY(10px); opacity: .86; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .pipeline {
+      height: 100%;
+      display: grid;
+      align-content: center;
+      gap: 18px;
+    }
+
+    .pipeline-row {
+      display: grid;
+      grid-template-columns: 1fr 34px 1fr 34px 1fr 34px 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .pipe-box {
+      min-height: 86px;
+      display: grid;
+      place-items: center;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+      font-weight: 800;
+      line-height: 1.35;
+      box-shadow: 0 10px 24px rgba(31, 41, 35, .055);
+    }
+
+    .arrow {
+      color: var(--accent);
+      font-size: 24px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .tiny-image {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: 2px;
+    }
+
+    .tiny-image i,
+    .tiny-map i {
+      display: block;
+      border-radius: 2px;
+      background: #e3e9df;
+    }
+
+    .tiny-image i:nth-child(7),
+    .tiny-image i:nth-child(8),
+    .tiny-image i:nth-child(12),
+    .tiny-image i:nth-child(13),
+    .tiny-image i:nth-child(18) { background: var(--accent); }
+
+    .tiny-map {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 3px;
+    }
+
+    .tiny-map i:nth-child(2),
+    .tiny-map i:nth-child(5),
+    .tiny-map i:nth-child(8) { background: var(--orange); }
+
+    .content {
+      width: min(1160px, calc(100% - 44px));
+      margin: 0 auto;
+      padding: 42px 0 84px;
+    }
+
+    section {
+      scroll-margin-top: 24px;
+      margin: 0 0 36px;
+      padding: 32px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 254, 250, .93);
+      box-shadow: 0 10px 28px rgba(31, 41, 35, .045);
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: clamp(22px, 2.5vw, 30px);
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 26px 0 10px;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { padding-left: 1.35em; }
+    li { margin: 7px 0; }
+    strong { color: #0e3f3b; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .note,
+    .warn,
+    .exam-tip,
+    .mini-card {
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .note { background: var(--soft); border-color: #b9e8d6; }
+    .warn { background: var(--warn); border-color: #fed7aa; }
+    .exam-tip { background: var(--mist); border-color: #bfdbfe; }
+    .mini-card { box-shadow: 0 8px 20px rgba(31, 41, 35, .045); }
+
+    .formula {
+      margin: 22px auto;
+      width: min(760px, 100%);
+      padding: 20px;
+      border: 2px solid #b9e8d6;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #f0fdf4, #ffffff);
+      text-align: center;
+      font-size: clamp(24px, 3vw, 38px);
+      font-weight: 900;
+      color: var(--accent-dark);
+      line-height: 1.25;
+    }
+
+    .formula small {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .vars {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .var-box {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      text-align: center;
+    }
+
+    .var-box b {
+      display: block;
+      color: var(--accent);
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .var-box span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .matrix-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: center;
+      margin: 16px 0;
+    }
+
+    .matrix {
+      display: grid;
+      gap: 4px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 8px 20px rgba(31, 41, 35, .05);
+    }
+
+    .matrix.cols-3 { grid-template-columns: repeat(3, 34px); }
+    .matrix.cols-4 { grid-template-columns: repeat(4, 34px); }
+    .matrix.cols-5 { grid-template-columns: repeat(5, 34px); }
+    .matrix.cols-7 { grid-template-columns: repeat(7, 30px); }
+
+    .cell {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #d7ded5;
+      border-radius: 6px;
+      background: #f8faf6;
+      color: #24312b;
+      font-weight: 800;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .matrix.cols-7 .cell {
+      width: 30px;
+      height: 30px;
+      font-size: 12px;
+    }
+
+    .cell.hit { background: #d1fae5; border-color: #6ee7b7; color: #064e3b; }
+    .cell.kernel { background: #ffedd5; border-color: #fdba74; color: #7c2d12; }
+    .cell.out { background: #dbeafe; border-color: #93c5fd; color: #1e3a8a; }
+    .cell.pad { background: #f1f5f9; color: #94a3b8; border-style: dashed; }
+    .cell.pool { background: #fee2e2; border-color: #fca5a5; color: #7f1d1d; }
+
+    .caption {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .conv-demo {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .window-board {
+      position: relative;
+      width: max-content;
+      margin: 0 auto;
+    }
+
+    .kernel-window {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      width: 110px;
+      height: 110px;
+      border: 3px solid var(--orange);
+      border-radius: 8px;
+      pointer-events: none;
+      box-shadow: 0 0 0 999px rgba(255, 255, 255, .10), 0 10px 20px rgba(217, 119, 6, .18);
+      transition: transform .32s ease;
+    }
+
+    .demo-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin: 14px 0 0;
+    }
+
+    button,
+    .button-link {
+      appearance: none;
+      border: 1px solid #a8d8cf;
+      border-radius: 7px;
+      padding: 9px 13px;
+      background: var(--accent);
+      color: #ffffff;
+      font: inherit;
+      font-weight: 800;
+      line-height: 1.2;
+      cursor: pointer;
+      transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+
+    button:hover,
+    .button-link:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15, 118, 110, .18);
+    }
+
+    button.secondary {
+      background: #ffffff;
+      color: var(--accent-dark);
+    }
+
+    .feature-flow {
+      display: grid;
+      grid-template-columns: 1fr 34px 1fr 34px 1fr;
+      gap: 12px;
+      align-items: center;
+      margin: 18px 0;
+    }
+
+    .feature-stage {
+      min-height: 140px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      text-align: center;
+    }
+
+    .sketch {
+      height: 70px;
+      margin: 0 auto 10px;
+      display: grid;
+      place-items: center;
+    }
+
+    .edge-icon,
+    .shape-icon,
+    .semantic-icon {
+      width: 78px;
+      height: 58px;
+      position: relative;
+    }
+
+    .edge-icon::before,
+    .edge-icon::after {
+      content: "";
+      position: absolute;
+      top: 6px;
+      bottom: 6px;
+      width: 9px;
+      background: var(--accent);
+      border-radius: 4px;
+    }
+
+    .edge-icon::before { left: 24px; }
+    .edge-icon::after { right: 24px; background: var(--orange); }
+
+    .shape-icon::before {
+      content: "";
+      position: absolute;
+      inset: 8px 18px;
+      border: 9px solid var(--blue);
+      border-radius: 50%;
+    }
+
+    .semantic-icon::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      top: 8px;
+      bottom: 6px;
+      background:
+        linear-gradient(45deg, transparent 45%, var(--accent) 46% 56%, transparent 57%),
+        radial-gradient(circle at 50% 26%, var(--orange) 0 12px, transparent 13px),
+        linear-gradient(var(--blue), var(--blue));
+      border-radius: 16px 16px 6px 6px;
+    }
+
+    .examples {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .example {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 16px;
+    }
+
+    .example b {
+      color: var(--accent-dark);
+    }
+
+    .steps {
+      margin: 10px 0 0;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #f8faf6;
+      border: 1px solid #e1e7dc;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .padding-visual {
+      display: grid;
+      grid-template-columns: 1fr 46px 1fr;
+      align-items: center;
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .stride-track {
+      display: grid;
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .track-row {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr);
+      gap: 14px;
+      align-items: center;
+    }
+
+    .track {
+      position: relative;
+      height: 50px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background:
+        repeating-linear-gradient(90deg, #eef3ec 0 42px, #ffffff 42px 84px);
+      overflow: hidden;
+    }
+
+    .step-box {
+      position: absolute;
+      top: 7px;
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--orange);
+      border-radius: 7px;
+      background: rgba(255, 237, 213, .42);
+    }
+
+    .s1 .step-box:nth-child(1) { left: 8px; }
+    .s1 .step-box:nth-child(2) { left: 52px; }
+    .s1 .step-box:nth-child(3) { left: 96px; }
+    .s1 .step-box:nth-child(4) { left: 140px; }
+    .s2 .step-box:nth-child(1) { left: 8px; }
+    .s2 .step-box:nth-child(2) { left: 96px; }
+    .s2 .step-box:nth-child(3) { left: 184px; }
+
+    .pooling-grid {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) 44px minmax(180px, .8fr);
+      gap: 16px;
+      align-items: center;
+      margin: 18px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      overflow: hidden;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 0 0 1px var(--line);
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef7f4;
+      color: #173f3b;
+      font-size: 14px;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .quiz {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .quiz-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .quiz-card h3 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .quiz-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 5px 9px;
+      border: 1px solid #d8e1d4;
+      border-radius: 999px;
+      background: #f8faf6;
+      color: #33423a;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .answer {
+      display: none;
+      padding: 12px;
+      border-radius: 8px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #064e3b;
+      font-weight: 700;
+    }
+
+    .answer.show { display: block; }
+
+    .calculator {
+      display: grid;
+      grid-template-columns: minmax(260px, .86fr) minmax(260px, 1.14fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: #314038;
+      font-weight: 800;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      border: 1px solid #cfd8cc;
+      border-radius: 7px;
+      padding: 10px 11px;
+      background: #ffffff;
+      color: var(--ink);
+      font: inherit;
+      font-weight: 800;
+    }
+
+    input[type="number"]:focus {
+      outline: 3px solid rgba(15, 118, 110, .16);
+      border-color: var(--accent);
+    }
+
+    .result-box {
+      min-height: 184px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .big-result {
+      color: var(--accent-dark);
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .checklist li {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: start;
+      margin: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .checklist input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--accent);
+      margin-top: 3px;
+    }
+
+    .speed-review {
+      background: #17201b;
+      color: #f8faf6;
+      border-color: #17201b;
+    }
+
+    .speed-review h2,
+    .speed-review strong { color: #ffffff; }
+    .speed-review .note {
+      background: rgba(255, 255, 255, .08);
+      border-color: rgba(255, 255, 255, .18);
+      color: #eef7f4;
+    }
+    .speed-review code {
+      background: rgba(255, 255, 255, .13);
+      color: #ffffff;
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      aside {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero { padding: 46px 22px 34px; }
+      .hero-inner,
+      .grid-2,
+      .conv-demo,
+      .calculator {
+        grid-template-columns: 1fr;
+      }
+      .vars { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pipeline-row {
+        grid-template-columns: 1fr;
+      }
+      .arrow { transform: rotate(90deg); }
+      .feature-flow,
+      .padding-visual,
+      .pooling-grid {
+        grid-template-columns: 1fr;
+      }
+      .quiz { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      body { font-size: 14px; }
+      .content { width: min(100% - 24px, 1160px); padding-top: 24px; }
+      section { padding: 22px 16px; }
+      nav { grid-template-columns: 1fr; }
+      .hero-visual { padding: 14px; min-height: 0; }
+      .vars,
+      .grid-3,
+      .form-grid { grid-template-columns: 1fr; }
+      .matrix.cols-7 { grid-template-columns: repeat(7, 26px); }
+      .matrix.cols-7 .cell { width: 26px; height: 26px; }
+      .matrix.cols-5 { grid-template-columns: repeat(5, 30px); }
+      .matrix.cols-4 { grid-template-columns: repeat(4, 30px); }
+      .matrix.cols-3 { grid-template-columns: repeat(3, 30px); }
+      .cell { width: 30px; height: 30px; }
+      .kernel-window { width: 98px; height: 98px; }
+      .track-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="brand">
+        <b>CNN 学习网页</b>
+        <span>卷积神经网络核心概念 + 输出尺寸计算专项训练</span>
+      </div>
+      <nav aria-label="目录导航">
+        <span class="toc-title">目录</span>
+        <a href="#what">一、CNN 是什么</a>
+        <a href="#conv">二、卷积操作的直观理解</a>
+        <a href="#features">三、卷积核如何提取局部特征</a>
+        <a href="#size">四、输出尺寸计算</a>
+        <a href="#padding">五、Padding</a>
+        <a href="#stride">六、Stride</a>
+        <a href="#pooling">七、Pooling</a>
+        <a href="#why">八、CNN 为什么适合图像</a>
+        <a href="#exam">九、考试重点：输出尺寸题</a>
+        <a href="#calculator">十、交互式计算器</a>
+        <a href="#summary">十一、CNN 总结表</a>
+        <a href="#checklist">十二、最后复习清单</a>
+        <a href="#quick">考前速记版</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div class="hero-inner">
+          <div>
+            <div class="eyebrow">Deep Learning Notes</div>
+            <h1>CNN 卷积神经网络：从直觉到考试计算</h1>
+            <p class="lead">这页按“先直觉解释，再数学解释，再例题训练”的顺序学习 CNN。读完后，你应该能说清卷积核、padding、stride、pooling、feature map，也能稳定解决输出尺寸计算题。</p>
+            <div class="hero-tags">
+              <span class="tag">局部特征</span>
+              <span class="tag">卷积窗口</span>
+              <span class="tag">输出尺寸公式</span>
+              <span class="tag">8 道练习</span>
+              <span class="tag">交互计算器</span>
+            </div>
+          </div>
+          <div class="hero-visual" aria-label="输入图片到分类结果示意图">
+            <div class="pipeline">
+              <div class="pipeline-row">
+                <div class="pipe-box">
+                  <div class="tiny-image">
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <i></i><i></i><i></i><i></i><i></i>
+                    <i></i><i></i><i></i><i></i><i></i>
+                  </div>
+                  输入图片
+                </div>
+                <div class="arrow">→</div>
+                <div class="pipe-box">
+                  <div class="matrix cols-3" style="padding:4px; gap:3px;">
+                    <span class="cell kernel">1</span><span class="cell kernel">0</span><span class="cell kernel">-1</span>
+                    <span class="cell kernel">1</span><span class="cell kernel">0</span><span class="cell kernel">-1</span>
+                    <span class="cell kernel">1</span><span class="cell kernel">0</span><span class="cell kernel">-1</span>
+                  </div>
+                  卷积层
+                </div>
+                <div class="arrow">→</div>
+                <div class="pipe-box">
+                  <div class="tiny-map">
+                    <i></i><i></i><i></i>
+                    <i></i><i></i><i></i>
+                    <i></i><i></i><i></i>
+                  </div>
+                  特征图
+                </div>
+                <div class="arrow">→</div>
+                <div class="pipe-box">
+                  <div style="font-size:30px;color:var(--accent);font-weight:900;">猫</div>
+                  分类结果
+                </div>
+              </div>
+              <div class="note"><strong>核心直觉：</strong>CNN 不是一次性看完整张图，而是用小窗口在图上滑动，反复寻找局部模式，再把局部模式组合成更高级的形状和语义。</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="what">
+          <h2>一、CNN 是什么</h2>
+          <p><strong>直觉解释：</strong>卷积神经网络 CNN 是一种特别适合处理图像的神经网络。它像一个会移动的小探测器：先在局部区域中找边缘、角点、纹理，再逐层组合成眼睛、轮廓、物体等更复杂的模式。</p>
+          <p><strong>和普通全连接神经网络 MLP 的区别：</strong>MLP 通常把图片摊平成一长串数字，位置关系容易被打散；CNN 保留图片的二维空间结构，用卷积核在局部区域上重复扫描。</p>
+          <div class="grid-2">
+            <div class="mini-card">
+              <h3>为什么图像不能只依赖 MLP？</h3>
+              <ul>
+                <li>图像像素有强烈的空间关系：相邻像素常共同构成边缘、纹理和局部形状。</li>
+                <li>把图片拉平成向量后，上下左右的邻近关系不再明显。</li>
+                <li>全连接层参数量很大，容易计算量高、过拟合。</li>
+              </ul>
+            </div>
+            <div class="mini-card">
+              <h3>图像中的局部结构</h3>
+              <ul>
+                <li><strong>边缘：</strong>亮暗变化明显的位置，如物体轮廓。</li>
+                <li><strong>纹理：</strong>重复出现的小模式，如布料纹路、草地纹理。</li>
+                <li><strong>形状：</strong>由多个边缘和纹理组合出的局部或整体结构。</li>
+              </ul>
+            </div>
+          </div>
+          <div class="exam-tip"><strong>考试表述：</strong>CNN 通过局部连接和参数共享保留图像空间结构，能高效提取边缘、纹理、形状等层次化特征，因此适合图像分类、检测、分割等任务。</div>
+        </section>
+
+        <section id="conv">
+          <h2>二、卷积操作的直观理解</h2>
+          <p><strong>直觉解释：</strong>卷积核是一个小矩阵，例如 3×3。它覆盖输入图片的一小块区域，把对应元素相乘后求和，得到输出特征图中的一个值。然后卷积核向右或向下滑动，重复这个过程。</p>
+          <div class="conv-demo">
+            <div class="mini-card">
+              <h3>5×5 输入矩阵与 3×3 卷积核滑动</h3>
+              <div class="window-board">
+                <div class="matrix cols-5" id="convInput">
+                  <span class="cell">1</span><span class="cell">2</span><span class="cell">0</span><span class="cell">1</span><span class="cell">3</span>
+                  <span class="cell">0</span><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">1</span>
+                  <span class="cell">1</span><span class="cell">0</span><span class="cell">1</span><span class="cell">2</span><span class="cell">0</span>
+                  <span class="cell">2</span><span class="cell">1</span><span class="cell">0</span><span class="cell">1</span><span class="cell">2</span>
+                  <span class="cell">0</span><span class="cell">3</span><span class="cell">1</span><span class="cell">0</span><span class="cell">1</span>
+                </div>
+                <div class="kernel-window" id="kernelWindow"></div>
+              </div>
+              <div class="demo-controls">
+                <button type="button" id="prevWindow" class="secondary">上一步</button>
+                <button type="button" id="nextWindow">下一步</button>
+              </div>
+              <p class="caption" id="windowCaption">当前窗口位置：第 1 行，第 1 列。这个 3×3 区域就是一个局部感受野。</p>
+            </div>
+            <div class="mini-card">
+              <h3>一次窗口计算如何得到一个输出值</h3>
+              <div class="matrix-wrap">
+                <div>
+                  <div class="matrix cols-3">
+                    <span class="cell hit">1</span><span class="cell hit">2</span><span class="cell hit">0</span>
+                    <span class="cell hit">0</span><span class="cell hit">1</span><span class="cell hit">2</span>
+                    <span class="cell hit">1</span><span class="cell hit">0</span><span class="cell hit">1</span>
+                  </div>
+                  <div class="caption">输入窗口</div>
+                </div>
+                <div class="arrow">×</div>
+                <div>
+                  <div class="matrix cols-3">
+                    <span class="cell kernel">1</span><span class="cell kernel">0</span><span class="cell kernel">-1</span>
+                    <span class="cell kernel">1</span><span class="cell kernel">0</span><span class="cell kernel">-1</span>
+                    <span class="cell kernel">1</span><span class="cell kernel">0</span><span class="cell kernel">-1</span>
+                  </div>
+                  <div class="caption">竖线/边缘卷积核</div>
+                </div>
+                <div class="arrow">=</div>
+                <div>
+                  <div class="matrix cols-1" style="grid-template-columns:34px;">
+                    <span class="cell out">-1</span>
+                  </div>
+                  <div class="caption">输出值</div>
+                </div>
+              </div>
+              <div class="steps">1×1 + 2×0 + 0×(-1) + 0×1 + 1×0 + 2×(-1) + 1×1 + 0×0 + 1×(-1) = -1</div>
+              <p><strong>局部感受野：</strong>某个输出值只“看见”输入中的一个局部区域。这里 3×3 窗口就是该输出值的感受野。</p>
+            </div>
+          </div>
+          <div class="note"><strong>数学解释：</strong>卷积输出的每个元素 = 输入局部窗口与卷积核逐元素相乘再求和。一个卷积核常对应一种局部模式探测器，例如竖线、横线、边缘、角点。</div>
+        </section>
+
+        <section id="features">
+          <h2>三、卷积核如何提取局部特征</h2>
+          <p><strong>直觉解释：</strong>不同卷积核会学习不同特征。一个核可能对竖直边缘敏感，另一个核可能对水平边缘敏感，还有的核会对纹理、角点或颜色变化敏感。</p>
+          <div class="feature-flow">
+            <div class="feature-stage">
+              <div class="sketch"><div class="edge-icon"></div></div>
+              <strong>浅层特征</strong>
+              <p>边缘、亮暗变化、简单纹理。</p>
+            </div>
+            <div class="arrow">→</div>
+            <div class="feature-stage">
+              <div class="sketch"><div class="shape-icon"></div></div>
+              <strong>中层特征</strong>
+              <p>角点、局部形状、重复结构。</p>
+            </div>
+            <div class="arrow">→</div>
+            <div class="feature-stage">
+              <div class="sketch"><div class="semantic-icon"></div></div>
+              <strong>深层特征</strong>
+              <p>物体部件、整体轮廓、语义类别。</p>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="mini-card">
+              <h3>Feature map 是什么？</h3>
+              <p>某个卷积核扫完整张图后，会得到一张新的二维结果图，这张图叫 <strong>feature map</strong>。它记录“这个卷积核要找的模式在各个位置出现得多强”。</p>
+            </div>
+            <div class="mini-card">
+              <h3>多个卷积核会怎样？</h3>
+              <p>如果一个卷积层有 16 个卷积核，就会产生 16 张 feature maps。每张图关注一种特征，最后堆叠成输出的 16 个通道。</p>
+            </div>
+          </div>
+          <div class="exam-tip"><strong>例题表述：</strong>若输入经过一个包含 32 个 filter 的卷积层，空间尺寸按公式计算，输出通道数通常为 32，即产生 32 张 feature maps。</div>
+        </section>
+
+        <section id="size">
+          <h2>四、输出尺寸计算</h2>
+          <p><strong>直觉解释：</strong>输出尺寸取决于卷积核能在输入上放多少个合法位置。输入越大，位置越多；卷积核越大，位置越少；padding 会让边界变宽；stride 越大，跳得越远，位置越少。</p>
+          <div class="formula">
+            O = (I - K + 2P) / S + 1
+            <small>一维尺寸公式；二维图像的高和宽分别套用一次</small>
+          </div>
+          <div class="vars">
+            <div class="var-box"><b>I</b><span>Input size<br>输入尺寸</span></div>
+            <div class="var-box"><b>K</b><span>Kernel size<br>卷积核尺寸</span></div>
+            <div class="var-box"><b>P</b><span>Padding<br>每侧补零数量</span></div>
+            <div class="var-box"><b>S</b><span>Stride<br>滑动步长</span></div>
+            <div class="var-box"><b>O</b><span>Output size<br>输出尺寸</span></div>
+          </div>
+          <div class="warn"><strong>重要结论：</strong>如果计算结果不是整数，通常说明参数组合不匹配，或需要按具体框架设置向下取整。例如很多深度学习框架的默认公式会用 floor，但考试题通常希望参数使结果为整数。</div>
+
+          <h3>四类必会例题</h3>
+          <div class="examples">
+            <div class="example">
+              <b>1. 无 padding，stride = 1</b>
+              <p>输入 I = 32，卷积核 K = 3，padding P = 0，stride S = 1。</p>
+              <div class="steps">O = (32 - 3 + 2×0) / 1 + 1 = 29 + 1 = 30</div>
+              <p>直觉：3×3 卷积核在 32 个位置长度上，最多从第 1 个格子放到第 30 个格子。</p>
+            </div>
+            <div class="example">
+              <b>2. 有 padding，stride = 1</b>
+              <p>输入 I = 32，卷积核 K = 3，padding P = 1，stride S = 1。</p>
+              <div class="steps">O = (32 - 3 + 2×1) / 1 + 1 = 31 / 1 + 1 = 32</div>
+              <p>直觉：左右各补 1 个格子后，3×3 卷积保持原尺寸，这常被称为 same convolution。</p>
+            </div>
+            <div class="example">
+              <b>3. 无 padding，stride = 2</b>
+              <p>输入 I = 32，卷积核 K = 3，padding P = 0，stride S = 2。</p>
+              <div class="steps">O = (32 - 3 + 2×0) / 2 + 1 = 29 / 2 + 1 = 15.5</div>
+              <p>结果不是整数，说明标准整齐滑动时参数不匹配。若框架向下取整，则输出为 floor(15.5) = 15。</p>
+            </div>
+            <div class="example">
+              <b>4. 有 padding，stride = 2</b>
+              <p>输入 I = 32，卷积核 K = 3，padding P = 1，stride S = 2。</p>
+              <div class="steps">O = (32 - 3 + 2×1) / 2 + 1 = 31 / 2 + 1 = 16.5</div>
+              <p>结果仍不是整数。若框架向下取整，则输出为 floor(16.5) = 16；考试中要先指出不整除。</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="padding">
+          <h2>五、Padding</h2>
+          <p><strong>直觉解释：</strong>padding 就是在输入边缘周围补一圈或多圈数值，最常见是补 0。它像给图片加边框，让卷积核也能更充分地覆盖边缘像素。</p>
+          <div class="grid-2">
+            <div class="mini-card">
+              <h3>为什么需要 padding？</h3>
+              <ul>
+                <li><strong>保留边缘信息：</strong>边缘像素不再只被少量窗口看到。</li>
+                <li><strong>控制输出尺寸：</strong>选择合适 P 可以让输出变大、变小或保持不变。</li>
+                <li><strong>防止尺寸下降太快：</strong>深层网络连续卷积时更稳定。</li>
+              </ul>
+            </div>
+            <div class="mini-card">
+              <h3>Valid vs Same</h3>
+              <table>
+                <tr><th>类型</th><th>含义</th></tr>
+                <tr><td>valid convolution</td><td>通常 P = 0，不补边，输出尺寸会变小。</td></tr>
+                <tr><td>same convolution</td><td>选择合适 P，使 S = 1 时输出尺寸与输入相同。</td></tr>
+              </table>
+            </div>
+          </div>
+          <h3>5×5 输入加 P = 1 后变成 7×7</h3>
+          <div class="padding-visual">
+            <div>
+              <div class="matrix cols-5" style="margin:auto;">
+                <span class="cell">1</span><span class="cell">2</span><span class="cell">0</span><span class="cell">1</span><span class="cell">3</span>
+                <span class="cell">0</span><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">1</span>
+                <span class="cell">1</span><span class="cell">0</span><span class="cell">1</span><span class="cell">2</span><span class="cell">0</span>
+                <span class="cell">2</span><span class="cell">1</span><span class="cell">0</span><span class="cell">1</span><span class="cell">2</span>
+                <span class="cell">0</span><span class="cell">3</span><span class="cell">1</span><span class="cell">0</span><span class="cell">1</span>
+              </div>
+              <div class="caption">原始 5×5</div>
+            </div>
+            <div class="arrow">→</div>
+            <div>
+              <div class="matrix cols-7" style="margin:auto;">
+                <span class="cell pad">0</span><span class="cell pad">0</span><span class="cell pad">0</span><span class="cell pad">0</span><span class="cell pad">0</span><span class="cell pad">0</span><span class="cell pad">0</span>
+                <span class="cell pad">0</span><span class="cell">1</span><span class="cell">2</span><span class="cell">0</span><span class="cell">1</span><span class="cell">3</span><span class="cell pad">0</span>
+                <span class="cell pad">0</span><span class="cell">0</span><span class="cell">1</span><span class="cell">2</span><span class="cell">3</span><span class="cell">1</span><span class="cell pad">0</span>
+                <span class="cell pad">0</span><span class="cell">1</span><span class="cell">0</span><span class="cell">1</span><span class="cell">2</span><span class="cell">0</span><span class="cell pad">0</span>
+                <span class="cell pad">0</span><span class="cell">2</span><span class="cell">1</span><span class="cell">0</span><span class="cell">1</span><span class="cell">2</span><span class="cell pad">0</span>
+                <span class="cell pad">0</span><span class="cell">0</span><span class="cell">3</span><span class="cell">1</span><span class="cell">0</span><span class="cell">1</span><span class="cell pad">0</span>
+                <span class="cell pad">0</span><span class="cell pad">0</span><span class="cell pad">0</span><span class="cell pad">0</span><span class="cell pad">0</span><span class="cell pad">0</span><span class="cell pad">0</span>
+              </div>
+              <div class="caption">P = 1 后，等效尺寸 7×7</div>
+            </div>
+          </div>
+          <div class="steps">例：I = 5, K = 3, P = 1, S = 1，则 O = (5 - 3 + 2×1) / 1 + 1 = 5</div>
+        </section>
+
+        <section id="stride">
+          <h2>六、Stride</h2>
+          <p><strong>直觉解释：</strong>stride 是卷积核每次移动的步长。stride = 1 表示一步一格；stride = 2 表示每次跳两格。跳得越远，能放置窗口的位置越少，输出尺寸越小。</p>
+          <div class="stride-track">
+            <div class="track-row">
+              <strong>stride = 1</strong>
+              <div class="track s1">
+                <span class="step-box"></span><span class="step-box"></span><span class="step-box"></span><span class="step-box"></span>
+              </div>
+            </div>
+            <div class="track-row">
+              <strong>stride = 2</strong>
+              <div class="track s2">
+                <span class="step-box"></span><span class="step-box"></span><span class="step-box"></span>
+              </div>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="example">
+              <b>计算题 1</b>
+              <p>I = 28，K = 5，P = 0，S = 1。</p>
+              <div class="steps">O = (28 - 5 + 2×0) / 1 + 1 = 23 + 1 = 24</div>
+            </div>
+            <div class="example">
+              <b>计算题 2</b>
+              <p>I = 28，K = 5，P = 0，S = 2。</p>
+              <div class="steps">O = (28 - 5 + 2×0) / 2 + 1 = 23 / 2 + 1 = 12.5，不是整数；若 floor，则为 12。</div>
+            </div>
+          </div>
+          <div class="note"><strong>考试提醒：</strong>看到 S 变大，先在脑中判断“输出会变小”，再代入公式确认具体数值。</div>
+        </section>
+
+        <section id="pooling">
+          <h2>七、Pooling</h2>
+          <p><strong>直觉解释：</strong>pooling 是对局部区域做摘要。max pooling 取最大值，保留最强响应；average pooling 取平均值，保留整体水平。</p>
+          <div class="grid-2">
+            <div class="mini-card">
+              <h3>Pooling 的作用</h3>
+              <ul>
+                <li>降低空间尺寸。</li>
+                <li>减少后续计算量。</li>
+                <li>保留主要特征响应。</li>
+                <li>提高一定程度的位置鲁棒性。</li>
+              </ul>
+            </div>
+            <div class="mini-card">
+              <h3>是否有可学习参数？</h3>
+              <p>通常 pooling 没有可学习参数。它不像卷积核那样通过训练学习权重，而是按固定规则取最大值或平均值。</p>
+            </div>
+          </div>
+          <h3>4×4 矩阵做 2×2 max pooling，stride = 2</h3>
+          <div class="pooling-grid">
+            <div>
+              <div class="matrix cols-4" style="margin:auto;">
+                <span class="cell pool">1</span><span class="cell pool">3</span><span class="cell hit">2</span><span class="cell hit">0</span>
+                <span class="cell pool">2</span><span class="cell pool">5</span><span class="cell hit">1</span><span class="cell hit">4</span>
+                <span class="cell">0</span><span class="cell">2</span><span class="cell kernel">3</span><span class="cell kernel">1</span>
+                <span class="cell">1</span><span class="cell">2</span><span class="cell kernel">0</span><span class="cell kernel">6</span>
+              </div>
+              <div class="caption">每个 2×2 区域取最大值</div>
+            </div>
+            <div class="arrow">→</div>
+            <div>
+              <div class="matrix cols-2" style="grid-template-columns:repeat(2,34px);margin:auto;">
+                <span class="cell out">5</span><span class="cell out">4</span>
+                <span class="cell out">2</span><span class="cell out">6</span>
+              </div>
+              <div class="caption">输出 2×2</div>
+            </div>
+          </div>
+          <div class="steps">尺寸变化：I = 4, K = 2, P = 0, S = 2，所以 O = (4 - 2 + 0) / 2 + 1 = 2</div>
+        </section>
+
+        <section id="why">
+          <h2>八、CNN 为什么适合图像</h2>
+          <div class="grid-3">
+            <div class="mini-card">
+              <h3>1. 局部连接</h3>
+              <p>图像中局部像素关系强。CNN 每个神经元只连接一小块局部区域，符合边缘和纹理的形成方式。</p>
+            </div>
+            <div class="mini-card">
+              <h3>2. 参数共享</h3>
+              <p>同一个卷积核在整张图上重复使用。无论边缘出现在左上角还是右下角，都用同一组参数检测。</p>
+            </div>
+            <div class="mini-card">
+              <h3>3. 平移等变性</h3>
+              <p>物体位置改变时，feature map 中的响应位置也随之移动，特征仍能被检测到。</p>
+            </div>
+          </div>
+          <h3>参数数量对比</h3>
+          <table>
+            <tr><th>模型方式</th><th>例子</th><th>参数量</th><th>含义</th></tr>
+            <tr>
+              <td>MLP 全连接</td>
+              <td>32×32×3 图片连接到 100 个神经元</td>
+              <td>32×32×3×100 + 100 = 307,300</td>
+              <td>每个神经元都连接所有像素，参数很多。</td>
+            </tr>
+            <tr>
+              <td>CNN 卷积</td>
+              <td>一个 3×3 卷积核处理 RGB 三通道，产生 1 张 feature map</td>
+              <td>3×3×3 + 1 = 28</td>
+              <td>卷积核小，并在整张图共享参数。</td>
+            </tr>
+            <tr>
+              <td>CNN 多 filter</td>
+              <td>若有 100 个 3×3 filter</td>
+              <td>(3×3×3 + 1)×100 = 2,800</td>
+              <td>仍远少于同例 MLP 的 307,300。</td>
+            </tr>
+          </table>
+          <div class="exam-tip"><strong>考试可用句：</strong>CNN 利用局部连接减少单个神经元的连接范围，利用参数共享大幅减少参数量，并通过滑动卷积在不同位置检测同类特征。</div>
+        </section>
+
+        <section id="exam">
+          <h2>九、考试重点：输出尺寸题</h2>
+          <p>做题步骤固定三步：先写公式，再代入 I、K、P、S，最后判断结果是否为整数。</p>
+          <div class="quiz" id="quizList"></div>
+        </section>
+
+        <section id="calculator">
+          <h2>十、交互式输出尺寸计算器</h2>
+          <p>输入参数后自动计算 O。二维图像做题时，高和宽分别用这个计算器算一次；若高宽相同，只算一次即可。</p>
+          <div class="calculator">
+            <div class="mini-card">
+              <div class="form-grid">
+                <label>I 输入尺寸
+                  <input id="inputI" type="number" min="1" step="1" value="32">
+                </label>
+                <label>K 卷积核尺寸
+                  <input id="inputK" type="number" min="1" step="1" value="3">
+                </label>
+                <label>P padding
+                  <input id="inputP" type="number" min="0" step="1" value="1">
+                </label>
+                <label>S stride
+                  <input id="inputS" type="number" min="1" step="1" value="1">
+                </label>
+              </div>
+            </div>
+            <div class="result-box">
+              <div class="big-result" id="calcResult">O = 32</div>
+              <div class="steps" id="calcProcess">O = (32 - 3 + 2×1) / 1 + 1 = 32</div>
+              <div class="note" id="calcNotice">结果是整数，可以作为标准卷积输出尺寸。</div>
+            </div>
+          </div>
+        </section>
+
+        <section id="summary">
+          <h2>十一、CNN 总结表</h2>
+          <table>
+            <tr><th>概念</th><th>考试可用解释</th></tr>
+            <tr><td>convolution</td><td>卷积是用卷积核在输入上滑动，对局部窗口逐元素相乘并求和，从而提取局部特征的操作。</td></tr>
+            <tr><td>kernel</td><td>卷积核是一个小的权重矩阵，可学习某类局部模式，如边缘、纹理或角点。</td></tr>
+            <tr><td>feature map</td><td>feature map 是某个卷积核扫描输入后得到的响应图，表示该特征在不同位置的强弱。</td></tr>
+            <tr><td>padding</td><td>padding 是在输入边缘补值，用于保留边缘信息、控制输出尺寸、防止尺寸过快变小。</td></tr>
+            <tr><td>stride</td><td>stride 是卷积核每次移动的步长；stride 越大，输出空间尺寸通常越小。</td></tr>
+            <tr><td>pooling</td><td>pooling 对局部区域做最大值或平均值摘要，用于降低尺寸、减少计算并保留主要特征。</td></tr>
+            <tr><td>channel</td><td>channel 是输入或输出的通道维度，例如 RGB 图片有 3 个输入通道。</td></tr>
+            <tr><td>filter</td><td>filter 通常指一组跨所有输入通道的卷积核权重；一个 filter 产生一张输出 feature map。</td></tr>
+          </table>
+        </section>
+
+        <section id="checklist">
+          <h2>十二、最后复习清单</h2>
+          <ul class="checklist">
+            <li><input type="checkbox"><span>我能解释卷积核如何通过局部窗口提取边缘、纹理、形状等局部特征。</span></li>
+            <li><input type="checkbox"><span>我能熟练使用公式 <code>O = (I - K + 2P) / S + 1</code> 计算输出尺寸。</span></li>
+            <li><input type="checkbox"><span>我能解释 padding、stride、pooling 的含义、作用和对尺寸的影响。</span></li>
+            <li><input type="checkbox"><span>我能说明 CNN 为什么适合图像：局部连接、参数共享、平移等变性。</span></li>
+            <li><input type="checkbox"><span>我能完成常见考试计算题，并能写出完整代入过程。</span></li>
+          </ul>
+        </section>
+
+        <section id="quick" class="speed-review">
+          <h2>考前速记版</h2>
+          <div class="note">
+            <p><strong>1. 输出尺寸公式：</strong><code>O = (I - K + 2P) / S + 1</code>。先算分子，再除以 stride，最后 +1。</p>
+            <p><strong>2. padding：</strong>补边。P 越大，输出越大；P = 0 常叫 valid；K = 3, S = 1, P = 1 常可保持尺寸。</p>
+            <p><strong>3. stride：</strong>步长。S 越大，窗口跳得越远，输出越小。</p>
+            <p><strong>4. pooling：</strong>通常无参数，max pooling 取最大值，average pooling 取平均值，用于降尺寸和保留主要特征。</p>
+            <p><strong>5. CNN 适合图像：</strong>局部连接看局部结构，参数共享减少参数，滑动卷积能在不同位置检测同一特征。</p>
+            <p><strong>6. 不整除：</strong>考试中先写“结果不是整数，参数可能不匹配”；若题目说明按框架默认，则常见处理是向下取整。</p>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const positions = [
+      { row: 1, col: 1, x: 0, y: 0 },
+      { row: 1, col: 2, x: 38, y: 0 },
+      { row: 1, col: 3, x: 76, y: 0 },
+      { row: 2, col: 1, x: 0, y: 38 },
+      { row: 2, col: 2, x: 38, y: 38 },
+      { row: 2, col: 3, x: 76, y: 38 },
+      { row: 3, col: 1, x: 0, y: 76 },
+      { row: 3, col: 2, x: 38, y: 76 },
+      { row: 3, col: 3, x: 76, y: 76 }
+    ];
+    let positionIndex = 0;
+    const kernelWindow = document.getElementById("kernelWindow");
+    const windowCaption = document.getElementById("windowCaption");
+
+    function updateConvWindow() {
+      const pos = positions[positionIndex];
+      kernelWindow.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+      windowCaption.textContent = `当前窗口位置：第 ${pos.row} 行，第 ${pos.col} 列。这个 3×3 区域就是一个局部感受野。`;
+    }
+
+    document.getElementById("nextWindow").addEventListener("click", () => {
+      positionIndex = (positionIndex + 1) % positions.length;
+      updateConvWindow();
+    });
+
+    document.getElementById("prevWindow").addEventListener("click", () => {
+      positionIndex = (positionIndex - 1 + positions.length) % positions.length;
+      updateConvWindow();
+    });
+
+    const quizData = [
+      { title: "题 1：基础 valid 卷积", I: 32, K: 3, P: 0, S: 1, result: "30" },
+      { title: "题 2：same 常见设置", I: 32, K: 3, P: 1, S: 1, result: "32" },
+      { title: "题 3：较大卷积核", I: 28, K: 5, P: 0, S: 1, result: "24" },
+      { title: "题 4：有 padding 的 5×5 核", I: 28, K: 5, P: 2, S: 1, result: "28" },
+      { title: "题 5：stride = 2 整除", I: 64, K: 4, P: 1, S: 2, result: "32" },
+      { title: "题 6：stride = 2 不整除", I: 32, K: 3, P: 0, S: 2, result: "15.5，若按 floor 则为 15" },
+      { title: "题 7：中等难度", I: 56, K: 3, P: 1, S: 2, result: "28.5，若按 floor 则为 28" },
+      { title: "题 8：考试综合题", I: 224, K: 7, P: 3, S: 2, result: "112.5，若按 floor 则为 112" }
+    ];
+
+    function expression(q) {
+      const numerator = q.I - q.K + 2 * q.P;
+      const raw = numerator / q.S + 1;
+      const first = `O = (${q.I} - ${q.K} + 2×${q.P}) / ${q.S} + 1`;
+      if (Number.isInteger(raw)) {
+        return `${first} = ${numerator} / ${q.S} + 1 = ${raw}`;
+      }
+      return `${first} = ${numerator} / ${q.S} + 1 = ${raw}。结果不是整数，参数可能不匹配；若框架向下取整，则 O = ${Math.floor(raw)}。`;
+    }
+
+    const quizList = document.getElementById("quizList");
+    quizData.forEach((q, index) => {
+      const card = document.createElement("article");
+      card.className = "quiz-card";
+      card.innerHTML = `
+        <h3>${q.title}</h3>
+        <div class="quiz-meta">
+          <span class="pill">I = ${q.I}</span>
+          <span class="pill">K = ${q.K}</span>
+          <span class="pill">P = ${q.P}</span>
+          <span class="pill">S = ${q.S}</span>
+        </div>
+        <p>请自己计算输出尺寸 O。</p>
+        <button type="button" class="secondary" data-answer="${index}">显示答案</button>
+        <div class="answer" id="answer-${index}">${expression(q)}</div>
+      `;
+      quizList.appendChild(card);
+    });
+
+    quizList.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-answer]");
+      if (!button) return;
+      const answer = document.getElementById(`answer-${button.dataset.answer}`);
+      answer.classList.toggle("show");
+      button.textContent = answer.classList.contains("show") ? "隐藏答案" : "显示答案";
+    });
+
+    const inputs = ["inputI", "inputK", "inputP", "inputS"].map(id => document.getElementById(id));
+    const calcResult = document.getElementById("calcResult");
+    const calcProcess = document.getElementById("calcProcess");
+    const calcNotice = document.getElementById("calcNotice");
+
+    function calculateOutput() {
+      const [I, K, P, S] = inputs.map(input => Number(input.value));
+      if (!I || !K || S <= 0 || P < 0) {
+        calcResult.textContent = "请输入有效参数";
+        calcProcess.textContent = "I、K、S 必须为正数，P 不能为负数。";
+        calcNotice.textContent = "请修正输入后再计算。";
+        calcNotice.className = "warn";
+        return;
+      }
+      const numerator = I - K + 2 * P;
+      const raw = numerator / S + 1;
+      const rounded = Number(raw.toFixed(6));
+      calcResult.textContent = `O = ${rounded}`;
+      calcProcess.textContent = `O = (${I} - ${K} + 2×${P}) / ${S} + 1 = ${numerator} / ${S} + 1 = ${rounded}`;
+      if (Number.isInteger(raw)) {
+        calcNotice.textContent = "结果是整数，可以作为标准卷积输出尺寸。";
+        calcNotice.className = "note";
+      } else {
+        calcNotice.textContent = "结果不是整数，说明该参数组合可能不适合作为标准卷积输出尺寸。若框架规定向下取整，则输出为 " + Math.floor(raw) + "。";
+        calcNotice.className = "warn";
+      }
+    }
+
+    inputs.forEach(input => input.addEventListener("input", calculateOutput));
+    calculateOutput();
+    updateConvWindow();
+  </script>
+</body>
+</html>
