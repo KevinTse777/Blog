@@ -1,0 +1,1154 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RNN 循环神经网络基础考试复习</title>
+  <style>
+    :root {
+      --bg: #f6f7f2;
+      --paper: #fffefa;
+      --ink: #17201b;
+      --muted: #66716a;
+      --line: #dbe0d4;
+      --accent: #0f766e;
+      --accent-dark: #0b4f4a;
+      --amber: #d97706;
+      --blue: #2563eb;
+      --red: #dc2626;
+      --green: #16a34a;
+      --soft: #ecfdf5;
+      --warn: #fff7ed;
+      --mist: #eef6ff;
+      --rose: #fff1f2;
+      --shadow: 0 18px 45px rgba(31, 41, 35, .08);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 9% 8%, rgba(15, 118, 110, .10), transparent 25rem),
+        radial-gradient(circle at 92% 12%, rgba(217, 119, 6, .09), transparent 24rem),
+        linear-gradient(180deg, #fbfcf7 0%, var(--bg) 50%, #f8faf5 100%);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+      line-height: 1.72;
+      letter-spacing: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    code {
+      padding: 1px 6px;
+      border-radius: 5px;
+      background: #eef3ec;
+      color: #143b38;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: .94em;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 18px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 254, 250, .91);
+      backdrop-filter: blur(12px);
+      overflow: auto;
+      z-index: 10;
+    }
+
+    .brand {
+      display: grid;
+      gap: 8px;
+      padding: 0 8px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand b {
+      font-size: 19px;
+      line-height: 1.3;
+    }
+
+    .brand span,
+    .toc-title {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .exam-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 16px 0 4px;
+      padding: 10px 12px;
+      border: 1px solid #b7ded7;
+      border-radius: var(--radius);
+      background: var(--soft);
+      color: var(--accent-dark);
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease;
+    }
+
+    .exam-toggle:hover { transform: translateY(-1px); background: #dff8f1; }
+    .exam-toggle[aria-pressed="true"] { background: #0f766e; color: #fff; border-color: #0f766e; }
+
+    nav {
+      display: grid;
+      gap: 5px;
+      margin-top: 18px;
+    }
+
+    nav a {
+      display: block;
+      padding: 7px 10px;
+      border-radius: 7px;
+      color: #36433c;
+      font-size: 14px;
+      line-height: 1.35;
+      transition: background .18s ease, color .18s ease, transform .18s ease;
+    }
+
+    nav a:hover {
+      background: #eef7f4;
+      color: var(--accent);
+      transform: translateX(2px);
+    }
+
+    main { min-width: 0; }
+
+    .hero {
+      min-height: 76vh;
+      display: grid;
+      align-items: center;
+      padding: 70px 7vw 54px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(115deg, rgba(255, 254, 250, .94), rgba(255, 254, 250, .70)),
+        repeating-linear-gradient(90deg, rgba(15, 118, 110, .08) 0 1px, transparent 1px 64px),
+        repeating-linear-gradient(0deg, rgba(37, 99, 235, .055) 0 1px, transparent 1px 64px);
+    }
+
+    .hero-inner {
+      max-width: 1140px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(340px, .9fr);
+      gap: 42px;
+      align-items: center;
+    }
+
+    .hero-inner > * { min-width: 0; }
+
+    .eyebrow {
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 14px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 12px 0 16px;
+      max-width: 780px;
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: 1.04;
+      letter-spacing: 0;
+      overflow-wrap: anywhere;
+    }
+
+    .lead {
+      max-width: 780px;
+      color: #3c4942;
+      font-size: clamp(15px, 1.7vw, 19px);
+      line-height: 1.65;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 26px;
+    }
+
+    .tag {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: rgba(255, 255, 255, .72);
+      color: #41504a;
+      font-size: 13px;
+      font-weight: 700;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+
+    .hero-visual {
+      min-height: 370px;
+      border: 1px solid #cdd7cc;
+      border-radius: var(--radius);
+      background: rgba(255, 254, 250, .78);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      overflow: hidden;
+      animation: rise .7s ease both;
+    }
+
+    @keyframes rise {
+      from { opacity: .2; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .content {
+      width: min(1120px, calc(100% - 44px));
+      margin: 0 auto;
+      padding: 44px 0 86px;
+    }
+
+    section {
+      scroll-margin-top: 24px;
+      margin: 0 0 34px;
+      padding: 31px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 254, 250, .92);
+      box-shadow: 0 10px 28px rgba(31, 41, 35, .045);
+    }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: clamp(22px, 2.4vw, 31px);
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 25px 0 10px;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { padding-left: 1.35em; }
+    li { margin: 7px 0; }
+    strong { color: #0e3f3b; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card, .note, .warn, .exam, .formula, .example, .diagram, .qa-item {
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      padding: 18px;
+      background: #ffffff;
+    }
+
+    .card h3:first-child,
+    .note h3:first-child,
+    .warn h3:first-child,
+    .exam h3:first-child,
+    .example h3:first-child { margin-top: 0; }
+
+    .note {
+      border-color: #b7ded7;
+      background: var(--soft);
+    }
+
+    .warn {
+      border-color: #fed7aa;
+      background: var(--warn);
+    }
+
+    .exam {
+      border-color: #bfdbfe;
+      background: var(--mist);
+    }
+
+    .formula {
+      background: #101815;
+      color: #f8fff9;
+      border-color: #101815;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size: clamp(14px, 1.45vw, 17px);
+      line-height: 1.65;
+      overflow-x: auto;
+    }
+
+    .formula small {
+      display: block;
+      color: #b9c9bf;
+      font-family: inherit;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    pre {
+      margin: 16px 0 0;
+      padding: 18px;
+      border-radius: var(--radius);
+      background: #0f172a;
+      color: #e5edf8;
+      overflow-x: auto;
+      line-height: 1.62;
+      font-size: 13px;
+    }
+
+    pre code {
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      font-size: inherit;
+    }
+
+    .example {
+      background: #fffdf5;
+      border-color: #f5dd94;
+    }
+
+    .diagram {
+      background: #fbfcff;
+      overflow: hidden;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .node { fill: #fffefa; stroke: #0f766e; stroke-width: 2; }
+    .node-out { fill: #ecfdf5; stroke: #d97706; stroke-width: 2; }
+    .node-blue { fill: #eff6ff; stroke: #2563eb; stroke-width: 2; }
+    .node-red { fill: #fff1f2; stroke: #dc2626; stroke-width: 2; }
+    .edge { stroke: #8a9990; stroke-width: 1.7; fill: none; marker-end: url(#arrow); }
+    .edge-plain { stroke: #8a9990; stroke-width: 1.7; fill: none; }
+    .label { font: 13px ui-sans-serif, system-ui, sans-serif; fill: #27342e; }
+    .tiny { font: 11px ui-sans-serif, system-ui, sans-serif; fill: #617068; }
+
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: stretch;
+      margin: 16px 0;
+    }
+
+    .step {
+      flex: 1 1 130px;
+      min-height: 76px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      font-weight: 800;
+      color: #223028;
+      position: relative;
+    }
+
+    .step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent);
+      font-size: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 0;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef7f4;
+      color: #123f3a;
+      font-size: 13px;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .interactive {
+      border: 1px solid #bfdad4;
+      background: #f8fffd;
+      border-radius: var(--radius);
+      padding: 18px;
+      margin: 16px 0;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 1px solid var(--accent);
+      border-radius: 7px;
+      background: var(--accent);
+      color: #fff;
+      padding: 9px 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(15, 118, 110, .16);
+      background: #0b605a;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .time-card {
+      min-height: 116px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      opacity: .45;
+      transform: translateY(6px);
+      transition: opacity .25s ease, transform .25s ease, border-color .25s ease, background .25s ease;
+    }
+
+    .time-card.active {
+      opacity: 1;
+      transform: translateY(0);
+      border-color: var(--accent);
+      background: var(--soft);
+    }
+
+    .time-card b { display: block; color: var(--accent-dark); }
+    .time-card span { display: block; color: var(--muted); font-size: 13px; margin-top: 5px; }
+
+    .gradient-bars {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 9px;
+      align-items: end;
+      min-height: 190px;
+      padding: 18px;
+      border-radius: var(--radius);
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .bar {
+      display: grid;
+      align-items: end;
+      justify-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .bar i {
+      display: block;
+      width: 100%;
+      max-width: 42px;
+      height: var(--h, 20px);
+      border-radius: 6px 6px 0 0;
+      background: var(--c, var(--accent));
+      transition: height .55s ease;
+    }
+
+    .bar span {
+      color: #52635a;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+      text-align: center;
+    }
+
+    .qa-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .qa-item {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .qa-item summary {
+      padding: 15px 18px;
+      font-weight: 800;
+      color: #1f3028;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .qa-item[open] summary {
+      background: #eef7f4;
+      color: var(--accent-dark);
+    }
+
+    .qa-item div {
+      padding: 0 18px 16px;
+      color: #3f4d45;
+    }
+
+    .cheat {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .cheat div {
+      padding: 13px 14px;
+      border: 1px solid #b7ded7;
+      border-radius: 7px;
+      background: #f8fffd;
+      font-weight: 700;
+      color: #163f3b;
+    }
+
+    .keyword {
+      display: inline-block;
+      margin: 3px 5px 3px 0;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #eef7f4;
+      color: #0b4f4a;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .detail { transition: opacity .2s ease; }
+    body.exam-mode .detail,
+    body.exam-mode .example:not(.keep),
+    body.exam-mode .diagram.optional,
+    body.exam-mode section:not(.exam-keep) .grid-3.detail { display: none; }
+    body.exam-mode section { padding-top: 23px; }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      aside {
+        position: static;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .hero-inner,
+      .grid-2,
+      .grid-3,
+      .grid-5,
+      .cheat {
+        grid-template-columns: 1fr;
+      }
+      .hero { padding-top: 48px; }
+      .hero-visual { min-height: 280px; }
+      .timeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 620px) {
+      body { font-size: 14px; }
+      .content { width: min(100% - 26px, 1120px); padding-top: 26px; }
+      section { padding: 20px; }
+      .hero { padding: 38px 20px; overflow: hidden; }
+      .hero-inner {
+        width: 100%;
+        max-width: calc(100vw - 40px);
+        gap: 28px;
+      }
+      h1 {
+        font-size: 30px;
+        line-height: 1.14;
+        word-break: break-word;
+      }
+      .lead { word-break: break-word; }
+      .hero-tags {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 9px;
+      }
+      .tag {
+        display: block;
+        text-align: center;
+      }
+      .hero-visual {
+        width: 100%;
+        max-width: calc(100vw - 40px);
+        min-height: 0;
+        padding: 14px;
+      }
+      .timeline { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 1fr; }
+      th, td { padding: 10px; }
+      aside { padding: 22px 18px 16px; }
+      nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-height: 220px;
+        overflow: auto;
+        padding-right: 4px;
+      }
+      nav a { font-size: 13px; padding: 7px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="brand">
+        <b>RNN 基础复习</b>
+        <span>序列建模、BPTT、LSTM / GRU / BiRNN</span>
+      </div>
+      <button id="examMode" class="exam-toggle" type="button" aria-pressed="false">考试模式</button>
+      <div class="toc-title">目录导航</div>
+      <nav aria-label="页面目录">
+        <a href="#why">1. 为什么出现 RNN</a>
+        <a href="#sequence">2. 序列数据</a>
+        <a href="#hidden">3. hidden state</a>
+        <a href="#sentence">4. 处理一句话</a>
+        <a href="#io">5. 输入输出形式</a>
+        <a href="#sharing">6. 参数共享</a>
+        <a href="#bptt">7. BPTT</a>
+        <a href="#gradient">8. 梯度问题</a>
+        <a href="#long-term">9. 长距离依赖</a>
+        <a href="#lstm">10. LSTM</a>
+        <a href="#gru">11. GRU</a>
+        <a href="#birnn">12. BiRNN</a>
+        <a href="#nlp">13. NLP 应用</a>
+        <a href="#pytorch">14. PyTorch 用法</a>
+        <a href="#pos">15. POS Tagging</a>
+        <a href="#compare">16. 模型对比</a>
+        <a href="#transformer">17. Transformer 区别</a>
+        <a href="#qa">18. 高频问答</a>
+        <a href="#cheat">19. Cheat Sheet</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div class="hero-inner">
+          <div>
+            <div class="eyebrow">Recurrent Neural Network</div>
+            <h1>RNN 循环神经网络基础</h1>
+            <p class="lead">从序列建模、隐藏状态、BPTT 到 LSTM / GRU / BiRNN。RNN 是一种用于处理序列数据的神经网络，它通过隐藏状态把过去的信息传递到当前时间步。</p>
+            <div class="hero-tags">
+              <span class="tag">sequence data</span>
+              <span class="tag">hidden state</span>
+              <span class="tag">parameter sharing</span>
+              <span class="tag">BPTT</span>
+              <span class="tag">LSTM / GRU</span>
+            </div>
+          </div>
+          <div class="hero-visual" aria-label="RNN 展开图">
+            <svg viewBox="0 0 460 330" role="img">
+              <defs>
+                <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 Z" fill="#8a9990"></path>
+                </marker>
+              </defs>
+              <text x="22" y="32" class="label" style="font-weight:800">RNN unfolded through time</text>
+              <g transform="translate(30,70)">
+                <rect class="node-blue" x="0" y="0" width="84" height="44" rx="8"></rect>
+                <text class="label" x="42" y="28" text-anchor="middle">x1</text>
+                <rect class="node" x="0" y="88" width="84" height="54" rx="8"></rect>
+                <text class="label" x="42" y="120" text-anchor="middle">h1</text>
+                <rect class="node-out" x="0" y="190" width="84" height="44" rx="8"></rect>
+                <text class="label" x="42" y="218" text-anchor="middle">y1</text>
+                <path class="edge" d="M42 44 V88"></path>
+                <path class="edge" d="M42 142 V190"></path>
+              </g>
+              <g transform="translate(188,70)">
+                <rect class="node-blue" x="0" y="0" width="84" height="44" rx="8"></rect>
+                <text class="label" x="42" y="28" text-anchor="middle">x2</text>
+                <rect class="node" x="0" y="88" width="84" height="54" rx="8"></rect>
+                <text class="label" x="42" y="120" text-anchor="middle">h2</text>
+                <rect class="node-out" x="0" y="190" width="84" height="44" rx="8"></rect>
+                <text class="label" x="42" y="218" text-anchor="middle">y2</text>
+                <path class="edge" d="M42 44 V88"></path>
+                <path class="edge" d="M42 142 V190"></path>
+              </g>
+              <g transform="translate(346,70)">
+                <rect class="node-blue" x="0" y="0" width="84" height="44" rx="8"></rect>
+                <text class="label" x="42" y="28" text-anchor="middle">x3</text>
+                <rect class="node" x="0" y="88" width="84" height="54" rx="8"></rect>
+                <text class="label" x="42" y="120" text-anchor="middle">h3</text>
+                <rect class="node-out" x="0" y="190" width="84" height="44" rx="8"></rect>
+                <text class="label" x="42" y="218" text-anchor="middle">y3</text>
+                <path class="edge" d="M42 44 V88"></path>
+                <path class="edge" d="M42 142 V190"></path>
+              </g>
+              <path class="edge" d="M114 185 H188"></path>
+              <path class="edge" d="M272 185 H346"></path>
+              <text x="195" y="178" class="tiny">time memory</text>
+            </svg>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="why">
+          <h2>1. RNN 为什么出现？</h2>
+          <p class="detail">普通神经网络很擅长处理固定形状的输入，例如一张图片或一个固定维度向量。但语言、音频、股价、用户行为都有一个共同特征：数据是按时间或顺序展开的，前面的内容会影响后面的判断。</p>
+          <div class="example keep">
+            <strong>直观例子：</strong>只看到 <code>happy</code> 时，模型可能判断为正面；但句子 <code>I am not happy</code> 的关键在于前面的 <code>not</code>。模型需要把前面读到的信息保留下来。
+          </div>
+          <div class="grid-3 detail" style="margin-top:14px">
+            <div class="card"><h3>MLP</h3><p>一次性输入固定长度向量，输入位置之间没有天然的时间记忆。</p></div>
+            <div class="card"><h3>CNN</h3><p>擅长捕捉局部模式，例如局部词组或图像纹理，但“记住过去”不是它的核心机制。</p></div>
+            <div class="card"><h3>RNN</h3><p>按顺序读取数据，每一步把历史压缩进 hidden state，再传给下一步。</p></div>
+          </div>
+        </section>
+
+        <section id="sequence">
+          <h2>2. 什么是序列数据？</h2>
+          <p class="detail">序列数据不是一个孤立样本，而是一串有顺序的元素。顺序一旦改变，含义往往就变了。</p>
+          <table>
+            <thead><tr><th>数据类型</th><th>序列元素</th><th>任务示例</th></tr></thead>
+            <tbody>
+              <tr><td>文本</td><td>word 或 token</td><td>情感分类、机器翻译、POS tagging、NER</td></tr>
+              <tr><td>时间序列</td><td>time step</td><td>温度预测、股价预测、传感器异常检测</td></tr>
+              <tr><td>DNA / 蛋白质</td><td>nucleotide 或 amino acid</td><td>分类、功能预测、结构预测</td></tr>
+              <tr><td>音频</td><td>采样点或语音帧</td><td>语音识别、说话人识别、声音分类</td></tr>
+              <tr><td>用户行为</td><td>点击、购买、浏览事件</td><td>推荐系统、流失预测、下一步行为预测</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="hidden" class="exam-keep">
+          <h2>3. RNN 的核心思想：隐藏状态 hidden state</h2>
+          <p class="detail">RNN cell 在时间步 <code>t</code> 接收当前输入 <code>x_t</code> 和上一个时间步的隐藏状态 <code>h_{t-1}</code>，生成当前隐藏状态 <code>h_t</code>。可以把 <code>h_t</code> 理解为“到目前为止模型记住的信息”。</p>
+          <div class="formula">
+            h_t = tanh(W_x x_t + W_h h_{t-1} + b)
+            <small>x_t: 当前输入；h_{t-1}: 上一步记忆；h_t: 当前记忆；W_x/W_h: 权重；b: 偏置；tanh: 激活函数。</small>
+          </div>
+          <div class="diagram" style="margin-top:16px">
+            <svg viewBox="0 0 760 220" role="img">
+              <defs><marker id="arrow2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8a9990"></path></marker></defs>
+              <rect class="node-blue" x="54" y="42" width="130" height="48" rx="8"></rect>
+              <text class="label" x="119" y="71" text-anchor="middle">current input x_t</text>
+              <rect class="node-out" x="54" y="130" width="130" height="48" rx="8"></rect>
+              <text class="label" x="119" y="159" text-anchor="middle">previous h_{t-1}</text>
+              <rect class="node" x="315" y="70" width="150" height="80" rx="10"></rect>
+              <text class="label" x="390" y="104" text-anchor="middle" style="font-weight:800">RNN cell</text>
+              <text class="tiny" x="390" y="126" text-anchor="middle">same function at each step</text>
+              <rect class="node" x="590" y="86" width="130" height="48" rx="8"></rect>
+              <text class="label" x="655" y="115" text-anchor="middle">current h_t</text>
+              <path class="edge" marker-end="url(#arrow2)" d="M184 66 C235 66,250 86,315 98"></path>
+              <path class="edge" marker-end="url(#arrow2)" d="M184 154 C236 154,250 132,315 122"></path>
+              <path class="edge" marker-end="url(#arrow2)" d="M465 110 H590"></path>
+            </svg>
+          </div>
+        </section>
+
+        <section id="sentence">
+          <h2>4. RNN 如何处理一句话？</h2>
+          <p class="detail">以 <code>I am not happy</code> 为例，RNN 不会一次性把整句话扔进去，而是按 token 一个一个读。每一步的 hidden state 都会携带前面读过的信息。</p>
+          <div class="interactive">
+            <strong>时间步展开演示</strong>
+            <div class="timeline" id="sentenceTimeline">
+              <div class="time-card active"><b>Step 1: I</b><span>读入 I，得到 h1。</span></div>
+              <div class="time-card"><b>Step 2: am</b><span>结合 h1，得到 h2。</span></div>
+              <div class="time-card"><b>Step 3: not</b><span>结合 h2，得到 h3；否定信息进入记忆。</span></div>
+              <div class="time-card"><b>Step 4: happy</b><span>结合 h3，得到 h4；分类时可用 h4。</span></div>
+            </div>
+            <div class="controls">
+              <span id="sentenceStatus">当前高亮：I → h1</span>
+              <button type="button" id="nextSentence">Next Step</button>
+            </div>
+          </div>
+          <div class="note">
+            <strong>考试关键词：</strong>文本分类通常用最后的 <code>h_T</code> 做预测；序列标注通常用每个时间步的 <code>h_t</code> 做预测。
+          </div>
+        </section>
+
+        <section id="io">
+          <h2>5. RNN 的输入和输出形式</h2>
+          <div class="grid-5">
+            <div class="card"><h3>One-to-one</h3><p>普通输入输出，不是 RNN 的典型用途。</p><div class="flow"><span class="step">x</span><span class="step">y</span></div></div>
+            <div class="card"><h3>One-to-many</h3><p>一个输入生成序列，例如图像描述。</p><div class="flow"><span class="step">x</span><span class="step">y1 y2 y3</span></div></div>
+            <div class="card"><h3>Many-to-one</h3><p>序列输出一个标签，例如情感分类。</p><div class="flow"><span class="step">x1 x2 x3</span><span class="step">label</span></div></div>
+            <div class="card"><h3>Many-to-many 同长度</h3><p>每个输入对应输出，例如 POS tagging。</p><div class="flow"><span class="step">x1 x2 x3</span><span class="step">y1 y2 y3</span></div></div>
+            <div class="card"><h3>Many-to-many 不同长度</h3><p>输入输出长度不同，例如机器翻译。</p><div class="flow"><span class="step">English</span><span class="step">Chinese</span></div></div>
+          </div>
+        </section>
+
+        <section id="sharing">
+          <h2>6. RNN 中的参数共享</h2>
+          <p class="detail">RNN 在每个时间步使用同一组参数：<code>W_x</code>、<code>W_h</code>、<code>b</code>。因此参数量不会随序列长度线性增长，模型也能处理不同长度的序列。</p>
+          <div class="grid-2">
+            <div class="warn"><h3>如果不共享参数</h3><ul><li>每个时间步都有自己的参数。</li><li>序列越长，参数越多。</li><li>泛化能力差，训练更不稳定。</li></ul></div>
+            <div class="note"><h3>共享参数</h3><ul><li>同一个 RNN cell 被重复使用。</li><li>学习通用的序列转移模式。</li><li>可以自然处理可变长度输入。</li></ul></div>
+          </div>
+          <div class="diagram" style="margin-top:16px">
+            <svg viewBox="0 0 780 170" role="img">
+              <defs><marker id="arrow3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8a9990"></path></marker></defs>
+              <rect class="node" x="68" y="48" width="120" height="64" rx="9"></rect><text class="label" x="128" y="76" text-anchor="middle">RNN cell</text><text class="tiny" x="128" y="96" text-anchor="middle">W_x, W_h, b</text>
+              <rect class="node" x="330" y="48" width="120" height="64" rx="9"></rect><text class="label" x="390" y="76" text-anchor="middle">RNN cell</text><text class="tiny" x="390" y="96" text-anchor="middle">same params</text>
+              <rect class="node" x="592" y="48" width="120" height="64" rx="9"></rect><text class="label" x="652" y="76" text-anchor="middle">RNN cell</text><text class="tiny" x="652" y="96" text-anchor="middle">same params</text>
+              <path class="edge" marker-end="url(#arrow3)" d="M188 80 H330"></path>
+              <path class="edge" marker-end="url(#arrow3)" d="M450 80 H592"></path>
+              <text class="tiny" x="390" y="136" text-anchor="middle">同一套参数沿时间展开，不是复制出不同参数</text>
+            </svg>
+          </div>
+        </section>
+
+        <section id="bptt" class="exam-keep">
+          <h2>7. RNN 的训练：BPTT</h2>
+          <p class="detail">Backpropagation Through Time 的意思是：把循环结构沿时间展开，再像训练一个很深的前馈网络一样反向传播。损失可以来自最后一步，也可以来自每一步。</p>
+          <div class="formula">
+            forward:  x1 → h1 → h2 → h3 → y → loss<br>
+            backward: loss → h3 → h2 → h1
+            <small>BPTT 本质上是普通反向传播在时间维度上的应用。</small>
+          </div>
+          <div class="exam" style="margin-top:16px">
+            <strong>考试答法：</strong>BPTT unfolds the recurrent network through time and applies backpropagation on the unfolded computational graph. Longer sequences create longer gradient paths, which may cause vanishing or exploding gradients.
+          </div>
+        </section>
+
+        <section id="gradient" class="exam-keep">
+          <h2>8. RNN 的主要问题：梯度消失和梯度爆炸</h2>
+          <div class="grid-2">
+            <div class="warn">
+              <h3>Vanishing Gradient</h3>
+              <p>梯度在反向传播中不断乘以小于 1 的数，越来越接近 0。早期时间步几乎学不到，长距离依赖难以建模。</p>
+              <p><code>0.2 → 0.04 → 0.008 → 0.0016</code></p>
+            </div>
+            <div class="warn">
+              <h3>Exploding Gradient</h3>
+              <p>梯度不断乘以大于 1 的数，数值快速变大，参数更新不稳定，loss 震荡，甚至出现 NaN。</p>
+              <p><code>2 → 4 → 8 → 16 → 32</code></p>
+            </div>
+          </div>
+          <div class="interactive">
+            <strong>Vanishing vs Exploding Gradient 动画</strong>
+            <div class="gradient-bars" id="gradientBars" aria-label="梯度变化柱状图"></div>
+            <div class="controls">
+              <span>绿色表示梯度消失，红色表示梯度爆炸。</span>
+              <button type="button" id="runGradient">播放变化</button>
+            </div>
+          </div>
+          <div class="note"><strong>解决思路：</strong>梯度爆炸常用 gradient clipping；梯度消失常用 LSTM / GRU、更好的初始化、残差结构等。</div>
+        </section>
+
+        <section id="long-term">
+          <h2>9. 长距离依赖 Long-term Dependency</h2>
+          <p class="detail">基础 RNN 理论上可以把很早的信息传到后面，但实际训练中，因为 BPTT 路径太长，早期信息很容易被弱化。</p>
+          <div class="example keep">
+            <strong>例句：</strong>The book that I bought yesterday from the old store near the station was interesting.
+            <br>主语 <code>book</code> 和谓语 <code>was</code> 距离很远，模型需要记住很久之前的主语信息。
+          </div>
+          <div class="exam" style="margin-top:16px">
+            <strong>考试提示：</strong>如果题目问 why vanilla RNN has difficulty modeling long-term dependencies，通常要回答 BPTT、gradient vanishing/exploding、repeated multiplication through time。
+          </div>
+        </section>
+
+        <section id="lstm" class="exam-keep">
+          <h2>10. LSTM：为什么比普通 RNN 更强？</h2>
+          <p class="detail">LSTM = Long Short-Term Memory。它增加了 <code>cell state</code>，像一条信息高速公路，让重要信息更容易跨越很多时间步传递。三个门控制信息如何流动。</p>
+          <div class="grid-3">
+            <div class="card"><h3>Forget gate</h3><p>决定旧信息保留多少。像删除旧笔记。</p></div>
+            <div class="card"><h3>Input gate</h3><p>决定新信息写入多少。像写入新笔记。</p></div>
+            <div class="card"><h3>Output gate</h3><p>决定当前展示哪部分内部状态。</p></div>
+          </div>
+          <div class="formula" style="margin-top:16px">
+            f_t = sigmoid(...)<br>
+            i_t = sigmoid(...)<br>
+            o_t = sigmoid(...)<br>
+            C_t = f_t * C_{t-1} + i_t * C~_t
+            <small>f_t 控制遗忘；i_t 控制写入；o_t 控制输出；C_t 是 cell state。</small>
+          </div>
+          <div class="diagram" style="margin-top:16px">
+            <svg viewBox="0 0 780 250" role="img">
+              <defs><marker id="arrow4" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8a9990"></path></marker></defs>
+              <rect class="node" x="240" y="45" width="300" height="150" rx="12"></rect>
+              <text class="label" x="390" y="73" text-anchor="middle" style="font-weight:800">LSTM Cell</text>
+              <rect class="node-blue" x="272" y="102" width="74" height="44" rx="8"></rect><text class="tiny" x="309" y="128" text-anchor="middle">forget</text>
+              <rect class="node-blue" x="353" y="102" width="74" height="44" rx="8"></rect><text class="tiny" x="390" y="128" text-anchor="middle">input</text>
+              <rect class="node-blue" x="434" y="102" width="74" height="44" rx="8"></rect><text class="tiny" x="471" y="128" text-anchor="middle">output</text>
+              <path class="edge-plain" d="M260 88 H520"></path>
+              <text class="tiny" x="390" y="91" text-anchor="middle">cell state highway</text>
+              <rect class="node-out" x="42" y="62" width="120" height="42" rx="8"></rect><text class="label" x="102" y="88" text-anchor="middle">C_{t-1}</text>
+              <rect class="node-out" x="42" y="145" width="120" height="42" rx="8"></rect><text class="label" x="102" y="171" text-anchor="middle">h_{t-1}, x_t</text>
+              <rect class="node-out" x="620" y="62" width="120" height="42" rx="8"></rect><text class="label" x="680" y="88" text-anchor="middle">C_t</text>
+              <rect class="node-out" x="620" y="145" width="120" height="42" rx="8"></rect><text class="label" x="680" y="171" text-anchor="middle">h_t</text>
+              <path class="edge" marker-end="url(#arrow4)" d="M162 83 H240"></path>
+              <path class="edge" marker-end="url(#arrow4)" d="M162 166 H240"></path>
+              <path class="edge" marker-end="url(#arrow4)" d="M540 83 H620"></path>
+              <path class="edge" marker-end="url(#arrow4)" d="M540 166 H620"></path>
+            </svg>
+          </div>
+        </section>
+
+        <section id="gru" class="exam-keep">
+          <h2>11. GRU：LSTM 的简化版本</h2>
+          <p class="detail">GRU = Gated Recurrent Unit。它没有单独的 cell state，而是把 hidden state 同时作为记忆，参数比 LSTM 少，训练通常更快，很多任务中效果接近 LSTM。</p>
+          <div class="grid-2">
+            <div class="card"><h3>Update gate z_t</h3><p>控制保留旧信息和加入新信息的比例。</p></div>
+            <div class="card"><h3>Reset gate r_t</h3><p>控制在生成候选记忆时忘记多少过去信息。</p></div>
+          </div>
+          <div class="formula" style="margin-top:16px">
+            z_t = sigmoid(...)  // update gate<br>
+            r_t = sigmoid(...)  // reset gate<br>
+            h_t = (1 - z_t) * h_{t-1} + z_t * h~_t
+            <small>LSTM: 三个门 + cell state；GRU: 两个门 + hidden state，更轻量。</small>
+          </div>
+        </section>
+
+        <section id="birnn">
+          <h2>12. Bidirectional RNN / BiLSTM / BiGRU</h2>
+          <p class="detail">普通 RNN 只能从左到右读取序列。但很多 NLP 任务需要同时看左侧和右侧上下文。</p>
+          <div class="example keep">
+            <strong>例句：</strong>He went to the bank to deposit money. 为了判断 <code>bank</code> 是“银行”而不是“河岸”，后面的 <code>deposit money</code> 非常关键。
+          </div>
+          <div class="formula" style="margin-top:16px">
+            h_t = [forward_h_t ; backward_h_t]
+            <small>两个方向的 hidden state 拼接，得到更完整的上下文表示。</small>
+          </div>
+          <div class="diagram" style="margin-top:16px">
+            <svg viewBox="0 0 780 220" role="img">
+              <defs><marker id="arrow5" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8a9990"></path></marker></defs>
+              <text class="label" x="390" y="28" text-anchor="middle" style="font-weight:800">Forward RNN</text>
+              <path class="edge" marker-end="url(#arrow5)" d="M130 65 H650"></path>
+              <text class="label" x="390" y="195" text-anchor="middle" style="font-weight:800">Backward RNN</text>
+              <path class="edge" marker-end="url(#arrow5)" d="M650 160 H130"></path>
+              <g transform="translate(110,88)">
+                <rect class="node-blue" x="0" y="0" width="80" height="44" rx="8"></rect><text class="label" x="40" y="28" text-anchor="middle">He</text>
+                <rect class="node-blue" x="150" y="0" width="80" height="44" rx="8"></rect><text class="label" x="190" y="28" text-anchor="middle">bank</text>
+                <rect class="node-blue" x="300" y="0" width="80" height="44" rx="8"></rect><text class="label" x="340" y="28" text-anchor="middle">deposit</text>
+                <rect class="node-blue" x="450" y="0" width="80" height="44" rx="8"></rect><text class="label" x="490" y="28" text-anchor="middle">money</text>
+              </g>
+            </svg>
+          </div>
+          <p><span class="keyword">POS tagging</span><span class="keyword">Named Entity Recognition</span><span class="keyword">序列标注</span><span class="keyword">需要完整上下文的任务</span></p>
+        </section>
+
+        <section id="nlp">
+          <h2>13. RNN 在 NLP 中的典型应用</h2>
+          <div class="grid-2">
+            <div class="card"><h3>文本分类</h3><p>tokens → embeddings → RNN/LSTM/GRU → last hidden state → classifier。</p><p><code>I love this movie → positive</code></p></div>
+            <div class="card"><h3>POS Tagging</h3><p>tokens → embeddings → BiLSTM → classifier at each time step。</p><p><code>I / love / football → PRON / VERB / NOUN</code></p></div>
+            <div class="card"><h3>NER</h3><p>tokens → embeddings → BiLSTM → CRF or classifier。</p><p><code>Barack Obama → B-PER I-PER</code></p></div>
+            <div class="card"><h3>机器翻译</h3><p>早期结构是 Encoder RNN → context vector → Decoder RNN。现在 Transformer 主导，但 RNN 是理解 seq2seq 的基础。</p></div>
+          </div>
+        </section>
+
+        <section id="pytorch" class="exam-keep">
+          <h2>14. PyTorch 中 RNN 的基本用法</h2>
+          <p class="detail">下面是一个最小文本分类模型。输入 <code>x</code> 的形状是 <code>[batch_size, seq_len]</code>，先变成 embedding，再送入 <code>nn.RNN</code>。</p>
+          <pre><code>import torch
+import torch.nn as nn
+
+class RNNClassifier(nn.Module):
+    def __init__(self, vocab_size, embed_dim, hidden_dim, num_classes):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        self.rnn = nn.RNN(
+            input_size=embed_dim,
+            hidden_size=hidden_dim,
+            batch_first=True
+        )
+        self.fc = nn.Linear(hidden_dim, num_classes)
+
+    def forward(self, x):
+        # x: [batch_size, seq_len]
+        embedded = self.embedding(x)
+        # embedded: [batch_size, seq_len, embed_dim]
+        output, hidden = self.rnn(embedded)
+        # output: [batch_size, seq_len, hidden_dim]
+        # hidden: [num_layers, batch_size, hidden_dim]
+        last_hidden = hidden[-1]
+        logits = self.fc(last_hidden)
+        return logits</code></pre>
+          <div class="note" style="margin-top:16px">
+            <strong>output vs hidden：</strong><code>output</code> 保存每个时间步的 hidden state；<code>hidden</code> 保存最后一个时间步、每一层的 hidden state。文本分类常用 <code>hidden[-1]</code>，序列标注常用 <code>output</code>。
+          </div>
+        </section>
+
+        <section id="pos" class="exam-keep">
+          <h2>15. POS Tagging：为什么用 output 而不是 hidden？</h2>
+          <p class="detail">POS tagging 是 many-to-many 同长度任务，每个词都需要一个标签。如果只用最后的 hidden state，就只得到整句话的一个表示，无法给每个 token 单独分类。</p>
+          <div class="formula">
+            output: [batch_size, seq_len, hidden_dim]<br>
+            linear(output): [batch_size, seq_len, num_tags]
+          </div>
+          <pre><code>output, hidden = self.rnn(embedded)
+logits = self.fc(output)  # 每个 token 都有自己的预测结果</code></pre>
+        </section>
+
+        <section id="compare">
+          <h2>16. RNN / LSTM / GRU / Transformer 对比</h2>
+          <table>
+            <thead><tr><th>模型</th><th>核心思想</th><th>优点</th><th>缺点</th><th>适用场景</th></tr></thead>
+            <tbody>
+              <tr><td>Vanilla RNN</td><td>hidden state 递归传递</td><td>结构简单，适合理解序列模型</td><td>长距离依赖差，易梯度消失/爆炸</td><td>短序列、教学基础</td></tr>
+              <tr><td>LSTM</td><td>cell state + 三个 gates</td><td>记忆能力强，缓解长期依赖问题</td><td>参数多，计算更慢</td><td>较长文本、时间序列</td></tr>
+              <tr><td>GRU</td><td>两个 gates + hidden state</td><td>更轻量，训练通常更快</td><td>表达能力有时不如 LSTM</td><td>资源受限或中等长度序列</td></tr>
+              <tr><td>BiLSTM / BiGRU</td><td>正向和反向 RNN 拼接</td><td>同时利用左右上下文</td><td>不适合实时预测未来不可见任务</td><td>POS、NER、序列标注</td></tr>
+              <tr><td>Transformer</td><td>attention 直接建模 token 关系</td><td>并行强，长距离建模强</td><td>资源需求较高，需要更多数据</td><td>现代 NLP、大模型</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="transformer">
+          <h2>17. RNN 和 Transformer 的核心区别</h2>
+          <div class="grid-2">
+            <div class="card">
+              <h3>RNN</h3>
+              <ul><li>顺序处理，一个时间步接一个时间步。</li><li>依靠 hidden state 传递信息。</li><li>难以并行，长距离依赖困难。</li></ul>
+              <div class="flow"><span class="step">x1</span><span class="step">x2</span><span class="step">x3</span><span class="step">x4</span></div>
+            </div>
+            <div class="card">
+              <h3>Transformer</h3>
+              <ul><li>同时处理整个序列。</li><li>使用 attention 直接建模 token 之间关系。</li><li>更容易捕捉长距离依赖，更适合大规模 NLP。</li></ul>
+              <div class="diagram">
+                <svg viewBox="0 0 360 150" role="img">
+                  <defs><marker id="arrow6" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8a9990"></path></marker></defs>
+                  <circle class="node-blue" cx="70" cy="75" r="26"></circle><text class="label" x="70" y="80" text-anchor="middle">x1</text>
+                  <circle class="node-blue" cx="145" cy="42" r="26"></circle><text class="label" x="145" y="47" text-anchor="middle">x2</text>
+                  <circle class="node-blue" cx="220" cy="108" r="26"></circle><text class="label" x="220" y="113" text-anchor="middle">x3</text>
+                  <circle class="node-blue" cx="295" cy="70" r="26"></circle><text class="label" x="295" y="75" text-anchor="middle">x4</text>
+                  <path class="edge-plain" d="M94 66 L121 51"></path><path class="edge-plain" d="M89 91 L196 101"></path><path class="edge-plain" d="M96 75 H269"></path><path class="edge-plain" d="M165 60 L200 90"></path><path class="edge-plain" d="M170 45 L270 64"></path><path class="edge-plain" d="M246 98 L271 84"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="qa" class="exam-keep">
+          <h2>18. 考试高频问答区</h2>
+          <div class="qa-list">
+            <details class="qa-item"><summary>1. What is the main idea of RNN?</summary><div>RNN processes sequence data step by step and uses hidden state to carry information from previous time steps to the current step.</div></details>
+            <details class="qa-item"><summary>2. Why can RNN handle variable-length sequences?</summary><div>Because the same RNN cell and parameters are reused at every time step, so the network can be unrolled for different sequence lengths.</div></details>
+            <details class="qa-item"><summary>3. What is hidden state?</summary><div>Hidden state is the memory representation of what the model has read so far. It depends on the current input and the previous hidden state.</div></details>
+            <details class="qa-item"><summary>4. What is parameter sharing in RNN?</summary><div>The same weights, such as W_x and W_h, are used across all time steps. This reduces parameters and helps learn general sequence patterns.</div></details>
+            <details class="qa-item"><summary>5. What is BPTT?</summary><div>Backpropagation Through Time unfolds the RNN along the time dimension and applies backpropagation on the unfolded graph.</div></details>
+            <details class="qa-item"><summary>6. Why does vanilla RNN suffer from vanishing gradients?</summary><div>During BPTT, gradients are repeatedly multiplied through many time steps. If these factors are smaller than 1, gradients shrink toward zero.</div></details>
+            <details class="qa-item"><summary>7. What is long-term dependency?</summary><div>It means the prediction at a later time step depends on information from much earlier time steps.</div></details>
+            <details class="qa-item"><summary>8. How does LSTM solve the weakness of vanilla RNN?</summary><div>LSTM uses cell state and gates to control remembering, forgetting, and outputting information, which helps preserve long-term information.</div></details>
+            <details class="qa-item"><summary>9. What is the difference between LSTM and GRU?</summary><div>LSTM has cell state and three gates; GRU has no separate cell state and usually uses update and reset gates, so it is lighter.</div></details>
+            <details class="qa-item"><summary>10. Why is BiLSTM useful for POS tagging and NER?</summary><div>Because these tasks need both left and right context. BiLSTM reads the sequence in both directions and concatenates the two hidden states.</div></details>
+            <details class="qa-item"><summary>11. What is the difference between output and hidden in PyTorch RNN?</summary><div>output contains hidden states for all time steps; hidden contains the final hidden state for each layer.</div></details>
+            <details class="qa-item"><summary>12. Why are Transformers often preferred over RNNs in modern NLP?</summary><div>Transformers process tokens in parallel and use attention to model long-range dependencies more directly.</div></details>
+          </div>
+        </section>
+
+        <section id="cheat" class="exam-keep">
+          <h2>19. RNN Exam Cheat Sheet</h2>
+          <div class="cheat">
+            <div>RNN 用于序列数据。</div>
+            <div>hidden state 保存历史信息。</div>
+            <div>h_t = f(x_t, h_{t-1})。</div>
+            <div>参数在时间步共享。</div>
+            <div>BPTT 是沿时间展开后的反向传播。</div>
+            <div>vanilla RNN 容易梯度消失/爆炸。</div>
+            <div>LSTM 用 cell state 和 gates 解决长期依赖。</div>
+            <div>GRU 是更轻量的 gated RNN。</div>
+            <div>BiRNN 同时看左右上下文。</div>
+            <div>文本分类用最后 hidden。</div>
+            <div>序列标注用每个 time step 的 output。</div>
+            <div>Transformer 更常用，但 RNN 是理解序列模型的重要基础。</div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const sentenceCards = Array.from(document.querySelectorAll("#sentenceTimeline .time-card"));
+    const sentenceStatus = document.getElementById("sentenceStatus");
+    const sentenceLabels = ["I → h1", "am + h1 → h2", "not + h2 → h3", "happy + h3 → h4"];
+    let sentenceIndex = 0;
+
+    document.getElementById("nextSentence").addEventListener("click", () => {
+      sentenceIndex = (sentenceIndex + 1) % sentenceCards.length;
+      sentenceCards.forEach((card, index) => card.classList.toggle("active", index <= sentenceIndex));
+      sentenceStatus.textContent = "当前高亮：" + sentenceLabels[sentenceIndex];
+    });
+
+    const gradientBars = document.getElementById("gradientBars");
+    const states = [
+      { label: "0.2", h: 96, c: "#16a34a" },
+      { label: "0.04", h: 52, c: "#16a34a" },
+      { label: "0.008", h: 24, c: "#16a34a" },
+      { label: "2", h: 42, c: "#dc2626" },
+      { label: "32", h: 152, c: "#dc2626" }
+    ];
+
+    function renderBars(animated) {
+      gradientBars.innerHTML = "";
+      states.forEach((state) => {
+        const item = document.createElement("div");
+        item.className = "bar";
+        const bar = document.createElement("i");
+        bar.style.setProperty("--c", state.c);
+        bar.style.setProperty("--h", animated ? state.h + "px" : "18px");
+        const label = document.createElement("span");
+        label.textContent = state.label;
+        item.append(bar, label);
+        gradientBars.appendChild(item);
+      });
+    }
+    renderBars(false);
+
+    document.getElementById("runGradient").addEventListener("click", () => {
+      renderBars(false);
+      requestAnimationFrame(() => setTimeout(() => renderBars(true), 60));
+    });
+
+    const examButton = document.getElementById("examMode");
+    examButton.addEventListener("click", () => {
+      const enabled = document.body.classList.toggle("exam-mode");
+      examButton.setAttribute("aria-pressed", String(enabled));
+      examButton.textContent = enabled ? "退出考试模式" : "考试模式";
+    });
+  </script>
+</body>
+</html>

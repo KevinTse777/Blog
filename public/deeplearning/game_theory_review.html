@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>博弈论期末复习总览</title>
+  <style>
+    :root {
+      --ink: #20201d;
+      --muted: #66645d;
+      --paper: #fbfaf6;
+      --panel: #ffffff;
+      --line: #dfddd4;
+      --accent: #2f6f64;
+      --accent-2: #9b5a2e;
+      --soft: #eef5f1;
+      --warn: #fff4e2;
+      --code: #f5f2ea;
+      --shadow: 0 10px 30px rgba(37, 35, 30, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.72;
+    }
+
+    .layout {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 292px minmax(0, 1fr);
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 22px;
+      border-right: 1px solid var(--line);
+      background: #f4f1e8;
+      overflow: auto;
+    }
+
+    .brand {
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    nav a {
+      display: block;
+      margin: 2px 0;
+      padding: 8px 10px;
+      color: #34312c;
+      text-decoration: none;
+      border-radius: 7px;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    nav a:hover,
+    nav a:focus {
+      background: #e5eee9;
+      color: var(--accent);
+      outline: none;
+    }
+
+    main {
+      max-width: 1080px;
+      width: 100%;
+      padding: 44px 48px 80px;
+    }
+
+    .hero {
+      padding: 0 0 28px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 34px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .hero h2 {
+      max-width: 820px;
+      margin: 0;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 840px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .quick {
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .quick b {
+      display: block;
+      color: var(--accent-2);
+      font-size: 13px;
+    }
+
+    .quick span {
+      display: block;
+      margin-top: 4px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    section {
+      scroll-margin-top: 26px;
+      margin: 0 0 42px;
+    }
+
+    h2.section-title {
+      margin: 0 0 16px;
+      padding-top: 8px;
+      font-size: 29px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 28px 0 10px;
+      font-size: 20px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    p { margin: 10px 0; }
+    ul, ol { padding-left: 1.35em; margin: 10px 0 14px; }
+    li { margin: 5px 0; }
+
+    .note,
+    .example,
+    .formula,
+    .exam {
+      margin: 16px 0;
+      padding: 16px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .note { background: var(--soft); border-color: #c8ddd3; }
+    .example { background: #fff; box-shadow: var(--shadow); }
+    .formula { background: var(--code); font-family: "SFMono-Regular", Consolas, monospace; }
+    .exam { background: var(--warn); border-color: #ecd4a8; }
+
+    .block-title {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--accent-2);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      margin: 16px 0;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th { background: #ede8dc; }
+    tr:last-child td { border-bottom: 0; }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .pill-list li {
+      margin: 0;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      font-size: 13px;
+    }
+
+    .top-link {
+      display: inline-block;
+      margin-top: 10px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .source {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside {
+        position: relative;
+        height: auto;
+        max-height: none;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      nav {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+      }
+      main { padding: 30px 20px 60px; }
+      .quick-grid, .two-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body id="top">
+  <div class="layout">
+    <aside>
+      <div class="brand">
+        <h1>博弈论复习总览</h1>
+        <p>由十份补充讲义提炼：概念、方法、例题、考试提醒。</p>
+      </div>
+      <nav aria-label="章节目录">
+        <a href="#map">0. 一张总图</a>
+        <a href="#foundations">1. 理性、偏好与共同知识</a>
+        <a href="#static">2. 完全信息静态博弈</a>
+        <a href="#mixed">3. 混合策略与不确定性</a>
+        <a href="#cooperation">4. 囚徒困境与社会两难</a>
+        <a href="#dynamic">5. 完全信息动态博弈</a>
+        <a href="#bargaining">6. 讨价还价</a>
+        <a href="#repeated">7. 重复博弈与合作</a>
+        <a href="#information">8. 不对称信息与信号</a>
+        <a href="#mechanism">9. 机制设计与拍卖</a>
+        <a href="#evolution">10. 演化博弈</a>
+        <a href="#methods">11. 解题工具箱</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div class="eyebrow">期末速通版 · 但不偷工减料</div>
+        <h2>把一学期博弈论压成一份能从头读到尾的复习讲义。</h2>
+        <p>阅读顺序建议：先看“一张总图”和“解题工具箱”，再按目录复习。例题块给出考试时该怎么想，而不是只给答案。</p>
+        <div class="quick-grid">
+          <div class="quick"><b>核心对象</b><span>参与人、策略、信息、支付、均衡。</span></div>
+          <div class="quick"><b>核心动作</b><span>找最优反应，剔除不合理威胁，更新信念。</span></div>
+          <div class="quick"><b>核心难点</b><span>个人理性与集体理性、信息不对称、承诺可信性。</span></div>
+        </div>
+      </header>
+
+      <section id="map">
+        <h2 class="section-title">0. 一张总图</h2>
+        <p>博弈论研究的是互动决策：你的最优选择取决于别人如何选择，而别人也在预测你。考试中先判断博弈属于哪一类，再选均衡概念。</p>
+        <table>
+          <thead><tr><th>行动顺序 / 私人信息</th><th>无私人信息</th><th>有私人信息</th></tr></thead>
+          <tbody>
+            <tr><td>同时行动</td><td>完全信息静态博弈：纳什均衡</td><td>不完全信息静态博弈：贝叶斯纳什均衡</td></tr>
+            <tr><td>先后行动</td><td>完全信息动态博弈：子博弈精炼纳什均衡</td><td>不完全信息动态博弈：精炼贝叶斯均衡、信号博弈</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <span class="block-title">考试口诀</span>
+          同时行动看“最佳回应”；先后行动从后往前推；有私人信息先写类型和信念；反复互动再问未来惩罚能不能支持合作。
+        </div>
+      </section>
+
+      <section id="foundations">
+        <h2 class="section-title">1. 理性、偏好与共同知识</h2>
+        <h3>博弈的基本构成</h3>
+        <ul>
+          <li><b>参与人</b>：做决策的主体，可以是个人、企业、国家、群体。</li>
+          <li><b>策略</b>：在所有可能情形下的完整行动计划。动态博弈中，未到达的信息集也要规定行动。</li>
+          <li><b>支付</b>：参与人关心的结果评价，不限于金钱，也可包含尊严、声誉、公平、风险。</li>
+          <li><b>信息</b>：参与人知道什么，包括行动历史、类型、支付函数和信念。</li>
+          <li><b>均衡</b>：每个人在给定他人策略时都没有单方面偏离的动机。</li>
+        </ul>
+        <h3>理性人假设</h3>
+        <p>理性人有明确偏好，并在约束条件下最大化自己的偏好满足。偏好通常要求完备性和传递性；约束包括财富、技术、制度、信息等。</p>
+        <div class="exam">
+          <span class="block-title">常考辨析</span>
+          “理性”不是只爱钱。若一个人为了荣誉、内疚、社会认可而行动，只要这些进入他的偏好，他仍可能是理性的。
+        </div>
+        <h3>不确定性与预期效用</h3>
+        <p>在不确定环境中，选择的价值通常是不同状态下效用的概率加权平均。风险态度分为风险厌恶、风险中立、风险偏好。</p>
+        <div class="example">
+          <span class="block-title">例题：带伞或卖画</span>
+          若一幅画有 25% 概率值 10000 美元，75% 概率值 2000 美元，期望货币价值为 0.25×10000+0.75×2000=4000 美元。若有人出价 3500，风险中立者会拒绝；风险厌恶者可能接受，因为确定收入能减少风险成本。
+        </div>
+        <h3>共同知识与理性共识</h3>
+        <p>共同知识不是“大家都知道”这么简单，而是大家知道，大家知道大家知道，并无限递归。许多博弈预测与现实偏离，原因正是现实中共同知识不足。</p>
+        <ul class="pill-list">
+          <li>零阶：每个人理性</li>
+          <li>一阶：每个人知道别人理性</li>
+          <li>二阶：每个人知道别人知道自己理性</li>
+          <li>无穷阶：共同知识</li>
+        </ul>
+      </section>
+
+      <section id="static">
+        <h2 class="section-title">2. 完全信息静态博弈</h2>
+        <h3>标准式表达</h3>
+        <p>完全信息静态博弈可写作参与人集合、策略空间、支付函数。双人有限博弈常用支付矩阵表示。</p>
+        <h3>优势策略与劣势策略</h3>
+        <ul>
+          <li><b>严格优势策略</b>：无论对方怎么选，它都比其他策略好。</li>
+          <li><b>弱优势策略</b>：无论对方怎么选至少不差，且某些情况下更好。</li>
+          <li><b>劣势策略剔除</b>：反复删除永远不如其他策略的选择，直到剩下可理性化策略。</li>
+        </ul>
+        <h3>纳什均衡</h3>
+        <p>纳什均衡是互为最优反应的策略组合。它不一定帕累托最优，也不一定唯一；有限博弈至少存在一个纳什均衡，可能是混合策略均衡。</p>
+        <div class="formula">
+          对策略组合 s*，若对每个参与人 i，都有 u_i(s_i*, s_-i*) ≥ u_i(s_i, s_-i*)，则 s* 是纳什均衡。
+        </div>
+        <h3>求解方法</h3>
+        <ol>
+          <li>画支付矩阵或列出策略组合。</li>
+          <li>固定对手策略，标出自己的最大支付。</li>
+          <li>双方最佳回应交叉处即纯策略纳什均衡。</li>
+          <li>若没有纯均衡，考虑混合策略。</li>
+        </ol>
+      </section>
+
+      <section id="mixed">
+        <h2 class="section-title">3. 混合策略与不确定性</h2>
+        <p>纯策略是在一个信息情况下选择确定行动；混合策略是按概率随机选择行动。混合的目的不是“随便选”，而是让对手在各纯策略之间无差异，从而无法被针对。</p>
+        <div class="example">
+          <span class="block-title">例题：NBA 投篮 / 突破</span>
+          Kobe 有投篮和突破，Pierce 有防投篮和防突破。若 Kobe 投篮概率为 p，Pierce 在两种防守策略下的期望收益相等：15p-5 = 3-8p，得 p = 8/23。反过来，Pierce 防投篮概率 q 使 Kobe 投篮与突破收益相等：5-15q = 8q-3，得 q = 8/23。均衡为双方均以 8/23 选择“投篮/防投篮”，以 15/23 选择“突破/防突破”。
+        </div>
+        <div class="note">
+          <span class="block-title">解题关键</span>
+          混合策略均衡里，被正概率使用的纯策略必须给参与人相同期望收益；没有被使用的策略收益不能更高。
+        </div>
+        <div class="example">
+          <span class="block-title">例题：礼貌过门</span>
+          两人都可“先走”或“等待”。该协调博弈有两个纯策略均衡：一人先走、另一人等待；同时还可能有混合均衡。混合均衡通常不稳定，且期望收益可能低于纯协调均衡，因为存在撞上或都等待的概率。
+        </div>
+      </section>
+
+      <section id="cooperation">
+        <h2 class="section-title">4. 囚徒困境与社会两难</h2>
+        <h3>囚徒困境</h3>
+        <p>囚徒困境说明个人理性可能导致集体非理性。每个囚徒都有坦白的占优策略，因此均衡是“都坦白”；但“都不坦白”对两人总体更好。</p>
+        <div class="formula">
+          一般囚徒困境可记为：诱惑收益 T &gt; 合作收益 R &gt; 惩罚收益 P &gt; 受骗收益 S，且 2R &gt; T + S。
+        </div>
+        <h3>社会两难</h3>
+        <p>社会两难是存在占优策略均衡，但采用均衡策略的收益比非均衡合作结果差。典型例子包括努力困境、公共地悲剧、政治家增税困境。</p>
+        <div class="example">
+          <span class="block-title">例题：公共地悲剧</span>
+          每个牧人多放一头牛时，新增收益归自己，过度放牧成本由所有人分摊。个体边际收益大于个体边际成本，于是每个人都扩张，最终公地被耗尽。制度安排、产权、配额、惩罚和重复关系都是解决方案。
+        </div>
+        <h3>合作解与非合作解</h3>
+        <p>非合作博弈强调独立决策与个人理性；合作博弈强调能否达成有约束力的协议与集体理性。两者区别不在于参与人是否“友好”，而在于协议是否可执行。</p>
+      </section>
+
+      <section id="dynamic">
+        <h2 class="section-title">5. 完全信息动态博弈</h2>
+        <h3>扩展式博弈</h3>
+        <p>动态博弈用博弈树表示：节点是决策点，枝是行动，终点给出支付。策略必须规定每个信息集上的行动。</p>
+        <h3>序贯理性与不可置信威胁</h3>
+        <p>动态博弈中，纳什均衡可能包含事后不会执行的威胁。序贯理性要求在每个到达的决策节点都选择最优行动。</p>
+        <div class="example">
+          <span class="block-title">例题：绩效考核博弈</span>
+          经理先给“及格/不及格”，员工后选择“申诉/接受”。普通标准式可能给出三个纳什均衡，但其中两个依赖员工事后不愿执行的申诉威胁。用子博弈精炼剔除不可置信威胁后，合理均衡是经理给不及格，员工在两种情形下都接受。
+        </div>
+        <h3>子博弈精炼纳什均衡</h3>
+        <p>SPE 要求策略组合不仅在原博弈是纳什均衡，在每个子博弈中也是纳什均衡。有限完美信息博弈通常用逆向归纳求解。</p>
+        <ol>
+          <li>从最后一个决策节点开始。</li>
+          <li>求该节点行动者的最优选择。</li>
+          <li>把该子博弈替换为相应支付。</li>
+          <li>逐层向前推到初始节点。</li>
+        </ol>
+        <h3>承诺、威胁与法律</h3>
+        <p>承诺是改变未来选择空间或选择成本，使原本不可置信的行动变得可信。订金、抵押物、固定资产、合同、法律都可能是承诺装置。承诺的本质是有时“选择少反而更有利”。</p>
+      </section>
+
+      <section id="bargaining">
+        <h2 class="section-title">6. 讨价还价</h2>
+        <h3>共同利益与利益冲突</h3>
+        <p>讨价还价是正和博弈：达成协议双方都有好处，但双方偏好的分配点不同。核心问题是合作剩余如何分配。</p>
+        <h3>纳什合作解</h3>
+        <p>设总价值为 V，不能达成协议时 A 得 a、B 得 b，合作剩余 S = V-a-b。纳什合作解在帕累托有效等条件下最大化纳什福利函数。</p>
+        <div class="formula">
+          max (x-a)^h (y-b)^k，约束 x+y=V。若谈判力 h=k，则合作剩余平均分配。
+        </div>
+        <div class="example">
+          <span class="block-title">例题：画家与拍卖商</span>
+          画售价 V=3000；画家自己卖得 a=1000；拍卖商做别的事得 b=500。合作剩余 S=1500。若谈判力相等，双方各得 750 的剩余，所以画家 x=1750，拍卖商 y=1250。
+        </div>
+        <h3>轮流出价与耐心</h3>
+        <p>非合作讨价还价把谈判看成动态博弈。谁先出价、是否有限期、谁更有耐心、拖延成本多大，都会影响分配。</p>
+        <div class="formula">
+          两期谈判：A 第一轮给 B 至少 b，均衡为 x=1-b, y=b。无限期轮流出价：x=(1-b)/(1-ab), y=b(1-a)/(1-ab)。
+        </div>
+        <div class="note">
+          <span class="block-title">结论</span>
+          有最后期限时可能出现后动优势；无限期且耐心相同时，先出价者有先动优势。越有耐心，谈判力越强。
+        </div>
+      </section>
+
+      <section id="repeated">
+        <h2 class="section-title">7. 重复博弈与合作</h2>
+        <h3>为什么重复能产生合作</h3>
+        <p>一次囚徒困境中合作难以维持；若未来足够重要，今天背叛会失去未来合作收益，合作可成为均衡。重复博弈扩大了策略空间：参与人可以根据历史行动惩罚或奖励对方。</p>
+        <ul>
+          <li><b>冷酷触发策略</b>：先合作；一旦对方背叛，之后永远不合作。</li>
+          <li><b>一报还一报</b>：先合作；随后复制对方上一期行动，特点是友善、报复、宽恕、一致。</li>
+          <li><b>有限惩罚</b>：惩罚若干期后恢复合作，在不确定环境中比永久惩罚更稳。</li>
+        </ul>
+        <div class="formula">
+          为避免和囚徒困境经典符号混淆，记双方合作收益为 C，单方背叛收益为 D，双方不合作收益为 P。触发策略支持合作的条件是：C/(1-d) ≥ D + dP/(1-d)，即 d ≥ (D-C)/(D-P)。
+        </div>
+        <div class="example">
+          <span class="block-title">例题：贴现因子门槛</span>
+          若 D=3、C=2、P=1，则 d ≥ (3-2)/(3-1)=0.5，合作可维持。若背叛收益提高到 D=3.5，则 d ≥ (3.5-2)/(3.5-1)=0.6。背叛诱惑越大，需要越重视未来。
+        </div>
+        <h3>信息、惩罚与声誉</h3>
+        <p>欺骗越难被发现，合作所需贴现因子越高。社会信息传播速度、品牌、声誉、第三方惩罚、联合抵制，都能影响合作。</p>
+        <div class="exam">
+          <span class="block-title">考试提醒</span>
+          有限次重复囚徒困境若阶段博弈唯一均衡为背叛，逆向归纳通常导致每期背叛。但若阶段博弈有多个均衡，或存在不完全信息与声誉类型，有限次重复也可能在前期合作。
+        </div>
+      </section>
+
+      <section id="information">
+        <h2 class="section-title">8. 不对称信息与信号</h2>
+        <h3>事前与事后不对称</h3>
+        <p>非对称信息是交易一方拥有而另一方不知道的信息。签约前的隐藏信息导致逆向选择；签约后的隐藏行动导致道德风险。</p>
+        <table>
+          <thead><tr><th>类型</th><th>别名</th><th>典型问题</th><th>解决思路</th></tr></thead>
+          <tbody>
+            <tr><td>事前不对称</td><td>隐藏信息</td><td>旧车质量、投保人健康、借款人风险</td><td>筛选、信号、品牌、机制设计</td></tr>
+            <tr><td>事后不对称</td><td>隐藏行动</td><td>员工努力、经理行为、保险后谨慎程度</td><td>激励合同、监督、声誉、风险分担</td></tr>
+          </tbody>
+        </table>
+        <h3>逆向选择</h3>
+        <div class="example">
+          <span class="block-title">例题：旧车市场</span>
+          好车卖方价值 20、买方价值 22；坏车卖方价值 10、买方价值 12。买方若只知道好坏各半，最多按平均质量出价。高质量卖方认为价格太低退出，平均质量进一步下降，最终“坏车驱逐好车”。这就是阿克洛夫柠檬市场。
+        </div>
+        <div class="example">
+          <span class="block-title">例题：施舍博弈</span>
+          若真乞丐概率为 q，施舍的期望收益为 10q+(1-q)(-20)=30q-20；不施舍收益为 0。只有 q&gt;2/3 才施舍。真乞丐得不到帮助，未必因为没有善心，而是因为信息不对称。
+        </div>
+        <h3>信号传递</h3>
+        <p>拥有私人信息的一方通过有成本行动显示类型。信号能区分类型的关键是：不同类型发出同一信号的成本不同，且成本差异足够大。</p>
+        <div class="example">
+          <span class="block-title">例题：保修作为质量信号</span>
+          好车故障概率 Q，坏车故障概率 q，且 Q&lt;q，维修成本 C。若高价 P 与无信号价格 p 的价差满足 QC ≤ P-p &lt; qC，则好车愿意提供保修，坏车不愿提供保修，保修成为分离信号。
+        </div>
+        <h3>解决信息不对称的四类机制</h3>
+        <ol>
+          <li>直接获取信息：调查、审计、精算、评级。</li>
+          <li>信号传递：教育、保修、广告、债务水平、加班、品牌。</li>
+          <li>机制设计：让信息优势方通过自选择说真话。</li>
+          <li>声誉机制：长期品牌和重复交易让撒谎变贵。</li>
+        </ol>
+      </section>
+
+      <section id="mechanism">
+        <h2 class="section-title">9. 机制设计与拍卖</h2>
+        <h3>机制设计的本质</h3>
+        <p>机制设计问的是：没有信息的一方如何设计规则，让拥有信息的一方愿意暴露真实类型。核心约束是激励相容和参与约束。</p>
+        <div class="two-col">
+          <div class="note"><span class="block-title">激励相容 IC</span>在给定机制下，如实报告或选择符合自己类型的合同是最优策略。</div>
+          <div class="note"><span class="block-title">参与约束 IR</span>参与机制的收益不低于外部保留收益，否则参与人会退出。</div>
+        </div>
+        <h3>保险合同的自选择</h3>
+        <p>保险公司可以提供不同价格和保障水平的合同组合，让高风险与低风险投保人自动选择不同方案。可行合同必须同时满足各类型的 IC 与 IR。</p>
+        <h3>拍卖机制</h3>
+        <table>
+          <thead><tr><th>拍卖形式</th><th>规则</th><th>策略含义</th></tr></thead>
+          <tbody>
+            <tr><td>英国式拍卖</td><td>公开升价，最后最高者得</td><td>信息逐步披露，常有较高效率</td></tr>
+            <tr><td>荷兰式拍卖</td><td>高价开始逐步降价，先接受者得</td><td>适合价值随时间下降的商品</td></tr>
+            <tr><td>第一价格密封拍卖</td><td>最高报价者赢，并支付自己的报价</td><td>投标者会低于真实估值出价</td></tr>
+            <tr><td>第二价格密封拍卖</td><td>最高报价者赢，但支付第二高价</td><td>真实报价是占优策略，又称 Vickrey 拍卖</td></tr>
+          </tbody>
+        </table>
+        <div class="example">
+          <span class="block-title">例题：为什么 Vickrey 拍卖说真话</span>
+          你是否赢取决于你的报价是否高于别人；但你赢后支付的是第二高价，不是自己的报价。若低报，可能错失本来有正净收益的物品；若高报，可能赢下估值以下本不该赢的物品。真实报价最优。
+        </div>
+        <h3>显示原理与公共产品</h3>
+        <p>显示原理说，若某个结果能由某机制的贝叶斯纳什均衡实现，就能由直接说真话机制实现。VCG 机制把第二价格拍卖思想推广到公共项目，让每个人承担自己报告对他人造成的外部性。</p>
+      </section>
+
+      <section id="evolution">
+        <h2 class="section-title">10. 演化博弈</h2>
+        <p>演化博弈不要求参与人一开始就完全理性，而是研究策略如何在群体中通过模仿、学习和适应扩散。收益高的策略更容易生存。</p>
+        <h3>演化稳定策略 ESS</h3>
+        <p>若群体中大多数采用某策略时，少数突变策略无法入侵，该策略就是演化稳定策略。它把均衡理解为长期稳定的行为模式。</p>
+        <div class="formula">
+          若对任意突变策略 x，有 f(E,E) &gt; f(x,E)，则 E 是 ESS；若二者相等，还需 f(E,x) &gt; f(x,x)。
+        </div>
+        <h3>单元均衡与多元均衡</h3>
+        <ul>
+          <li><b>单元均衡</b>：稳定状态中只有一种策略存在。</li>
+          <li><b>多元均衡</b>：多个策略可同时稳定存在。</li>
+          <li><b>路径依赖</b>：初始状态和历史冲击会影响最终均衡。</li>
+        </ul>
+        <div class="example">
+          <span class="block-title">例题：交通协调</span>
+          如果多数人靠右走，靠右者更容易避免冲突，靠左者收益低。通过模仿与适应，靠右会逐渐扩散并形成稳定习俗。一旦稳定，个体单独改为靠左反而吃亏。
+        </div>
+      </section>
+
+      <section id="methods">
+        <h2 class="section-title">11. 解题工具箱</h2>
+        <h3>看到题目先分类</h3>
+        <ol>
+          <li>参与人是谁？策略有哪些？支付如何写？</li>
+          <li>行动是同时还是先后？是否能观察历史？</li>
+          <li>有没有私人信息？类型概率和信念是什么？</li>
+          <li>是一次博弈还是重复博弈？未来是否重要？</li>
+          <li>题目要纯策略、混合策略、SPE、BNE、PBE，还是机制设计约束？</li>
+        </ol>
+        <h3>常用方法速查</h3>
+        <table>
+          <thead><tr><th>方法</th><th>适用题型</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td>划线法</td><td>2×2 或有限静态博弈</td><td>逐列找行玩家最优，逐行找列玩家最优，交叉处为均衡</td></tr>
+            <tr><td>剔除劣势策略</td><td>策略较多的静态博弈</td><td>反复删除永远不优的策略，注意严格/弱劣势区别</td></tr>
+            <tr><td>无差异条件</td><td>混合策略</td><td>令对手被混合的纯策略期望收益相等</td></tr>
+            <tr><td>逆向归纳</td><td>有限动态博弈</td><td>从最后节点往前求最优行动，剔除不可置信威胁</td></tr>
+            <tr><td>贝叶斯更新</td><td>不完全信息</td><td>写先验、信号概率、后验，再求最优行动</td></tr>
+            <tr><td>IC / IR</td><td>机制设计、合同、信号</td><td>先保证愿意参与，再保证愿意说真话或自选择</td></tr>
+            <tr><td>贴现比较</td><td>重复博弈</td><td>比较长期合作现值与短期背叛加惩罚现值</td></tr>
+          </tbody>
+        </table>
+        <h3>高频概念一页背诵</h3>
+        <ul>
+          <li><b>帕累托效率</b>：不存在让至少一人变好且无人变坏的改进。</li>
+          <li><b>纳什均衡</b>：给定别人策略，自己无利可图地单边偏离。</li>
+          <li><b>子博弈精炼</b>：每个子博弈都构成纳什均衡，剔除不可置信威胁。</li>
+          <li><b>贝叶斯纳什均衡</b>：各类型在信念下最大化期望收益。</li>
+          <li><b>分离均衡</b>：不同类型发不同信号，接收者能识别类型。</li>
+          <li><b>混同均衡</b>：不同类型发同一信号，接收者无法区分类型。</li>
+          <li><b>激励相容</b>：参与人按机制希望的方式行动是自己的最优选择。</li>
+          <li><b>显示原理</b>：可实现结果可由直接说真话机制实现。</li>
+          <li><b>ESS</b>：突变策略不能成功入侵的稳定策略。</li>
+        </ul>
+        <p class="source">整理依据：工作区内《博弈论补充讲义（一）》至《博弈论补充讲义（十）》及《博弈论知识点总结.md》。</p>
+        <a class="top-link" href="#top">回到顶部</a>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

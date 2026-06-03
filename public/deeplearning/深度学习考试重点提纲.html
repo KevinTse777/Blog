@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>深度学习考试重点提纲</title>
+  <style>
+    :root {
+      --bg: #f6f7f2;
+      --paper: #fffefa;
+      --ink: #17201b;
+      --muted: #66716a;
+      --line: #dbe0d4;
+      --accent: #0f766e;
+      --accent-dark: #0b4f4a;
+      --orange: #d97706;
+      --blue: #2563eb;
+      --red: #dc2626;
+      --soft: #ecfdf5;
+      --warn: #fff7ed;
+      --mist: #eef6ff;
+      --radius: 8px;
+      --shadow: 0 18px 45px rgba(31, 41, 35, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(15, 118, 110, .10), transparent 25rem),
+        radial-gradient(circle at 86% 14%, rgba(217, 119, 6, .10), transparent 24rem),
+        linear-gradient(180deg, #fbfcf7 0%, var(--bg) 48%, #f8faf5 100%);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+      line-height: 1.75;
+      letter-spacing: 0;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    code {
+      padding: 1px 6px;
+      border-radius: 5px;
+      background: #eef3ec;
+      color: #143b38;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: .94em;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 282px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 18px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 254, 250, .90);
+      backdrop-filter: blur(12px);
+      overflow: auto;
+    }
+
+    .brand {
+      display: grid;
+      gap: 8px;
+      padding: 0 8px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand b {
+      font-size: 19px;
+      line-height: 1.3;
+    }
+
+    .brand span,
+    .toc-title {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    nav {
+      display: grid;
+      gap: 6px;
+      margin-top: 18px;
+    }
+
+    nav a {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 7px;
+      color: #36433c;
+      font-size: 14px;
+      line-height: 1.35;
+      transition: background .18s ease, color .18s ease, transform .18s ease;
+    }
+
+    nav a:hover {
+      background: #eef7f4;
+      color: var(--accent);
+      transform: translateX(2px);
+    }
+
+    main { min-width: 0; }
+
+    .hero {
+      min-height: 58vh;
+      display: grid;
+      align-items: center;
+      padding: 72px 7vw 46px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(112deg, rgba(255, 254, 250, .94), rgba(255, 254, 250, .70)),
+        repeating-linear-gradient(90deg, rgba(15, 118, 110, .08) 0 1px, transparent 1px 64px),
+        repeating-linear-gradient(0deg, rgba(37, 99, 235, .05) 0 1px, transparent 1px 64px);
+    }
+
+    .hero-inner {
+      max-width: 1080px;
+      display: grid;
+      gap: 24px;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    h1 {
+      margin: 10px 0 12px;
+      max-width: 800px;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 760px;
+      color: #3c4942;
+      font-size: clamp(15px, 1.7vw, 19px);
+      line-height: 1.65;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 980px;
+      margin-top: 14px;
+    }
+
+    .summary div {
+      min-height: 96px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .72);
+      box-shadow: 0 10px 28px rgba(31, 41, 35, .05);
+    }
+
+    .summary b {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--accent-dark);
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .summary span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .content {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 48px 7vw 72px;
+    }
+
+    section {
+      scroll-margin-top: 28px;
+      margin-bottom: 28px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 254, 250, .86);
+      box-shadow: var(--shadow);
+    }
+
+    .section-head {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h2 {
+      margin: 0;
+      color: #10251f;
+      font-size: clamp(22px, 2.6vw, 30px);
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .tag {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: var(--soft);
+      color: var(--accent-dark);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    h3 {
+      margin: 20px 0 8px;
+      color: var(--accent-dark);
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    p { margin: 8px 0; }
+    ul {
+      margin: 8px 0 16px;
+      padding-left: 1.35em;
+    }
+
+    li { margin: 5px 0; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .note,
+    .formula,
+    .question {
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+    }
+
+    .note { background: #f8fbf6; }
+    .formula { background: var(--mist); }
+    .question { background: var(--warn); }
+
+    .note b,
+    .formula b,
+    .question b {
+      display: block;
+      margin-bottom: 5px;
+      color: #24332d;
+    }
+
+    .priority {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .priority span {
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #eef7f4;
+      color: #174c46;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 14px;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef7f4;
+      color: var(--accent-dark);
+      font-size: 13px;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .exam-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .exam-list div {
+      padding: 14px 16px;
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius);
+      background: #f8fbf6;
+    }
+
+    .footer {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+      padding-top: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+      nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .summary,
+      .grid,
+      .exam-list { grid-template-columns: 1fr; }
+      .hero { min-height: auto; padding-top: 42px; }
+      section { padding: 20px; }
+    }
+
+    @media print {
+      body { background: white; color: #111; font-size: 12px; }
+      aside,
+      .hero,
+      .footer { display: none; }
+      .layout { display: block; }
+      .content { max-width: none; padding: 0; }
+      section {
+        break-inside: avoid;
+        margin-bottom: 12px;
+        padding: 14px;
+        box-shadow: none;
+        background: white;
+      }
+      .grid,
+      .exam-list,
+      .summary { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="brand">
+        <b>深度学习考试重点提纲</b>
+        <span>按老师课堂重点整理，适合考前速览与简答题复习。</span>
+      </div>
+      <nav aria-label="页面目录">
+        <span class="toc-title">目录</span>
+        <a href="#exam">考试范围</a>
+        <a href="#optimize">训练与优化</a>
+        <a href="#softmax">Softmax 与分类</a>
+        <a href="#mlp">多层感知机 MLP</a>
+        <a href="#cnn">CNN 基础</a>
+        <a href="#classic">经典 CNN 网络</a>
+        <a href="#sequence">序列模型</a>
+        <a href="#priority">考前优先级</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div class="hero-inner">
+          <div>
+            <div class="eyebrow">Deep Learning Review</div>
+            <h1>深度学习考试重点提纲</h1>
+            <p class="lead">
+              这份提纲把课堂提到的重点整理成“概念、原因、实现、常见问法”四条线。复习时优先做到：
+              会解释原理、会写关键公式、会画基本结构图、会判断常见训练问题。
+            </p>
+          </div>
+          <div class="summary">
+            <div><b>4</b><span>类题型：选择、填空、简答、综合。</span></div>
+            <div><b>8</b><span>个核心模块：优化、Softmax、MLP、CNN、经典网络、序列模型等。</span></div>
+            <div><b>3</b><span>类高频解释：为什么、怎么实现、怎么解决。</span></div>
+            <div><b>1</b><span>条复习主线：从训练问题到网络结构。</span></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="exam">
+          <div class="section-head">
+            <h2>一、基础考试范围</h2>
+            <span class="tag">先看</span>
+          </div>
+          <p>老师明确提到题型包括：选择题、填空题、简答题、综合题。复习时不能只背概念，还要能回答“为什么”和“怎么实现”。</p>
+          <div class="exam-list">
+            <div><b>选择 / 填空</b><br>重点记概念、公式、结构名称、典型作用。</div>
+            <div><b>简答 / 综合</b><br>重点练解释过程、对比差异、分析训练问题。</div>
+          </div>
+        </section>
+
+        <section id="optimize">
+          <div class="section-head">
+            <h2>二、训练与优化</h2>
+            <span class="tag">高频</span>
+          </div>
+
+          <h3>损失函数</h3>
+          <ul>
+            <li>作用：衡量模型预测值与真实值之间的差距。</li>
+            <li>分类任务常用交叉熵损失，回归任务常用均方误差 MSE。</li>
+            <li>损失越小，说明预测越接近真实标签。</li>
+          </ul>
+
+          <h3>梯度下降法</h3>
+          <div class="formula">
+            <b>参数更新公式</b>
+            <code>参数 = 参数 - 学习率 × 梯度</code>
+          </div>
+          <ul>
+            <li>沿着损失函数下降最快的方向更新参数。</li>
+            <li>学习率太大可能震荡或发散，学习率太小会导致收敛很慢。</li>
+          </ul>
+
+          <h3>Batch Size 与 Learning Rate</h3>
+          <table>
+            <thead>
+              <tr><th>概念</th><th>含义</th><th>影响</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Batch Size</td><td>每次参数更新使用的样本数量</td><td>影响训练速度、显存占用、梯度稳定性和泛化效果</td></tr>
+              <tr><td>Learning Rate</td><td>每次更新参数的步长</td><td>太大易发散，太小收敛慢</td></tr>
+            </tbody>
+          </table>
+
+          <h3>梯度消失与梯度爆炸</h3>
+          <div class="grid">
+            <div class="note">
+              <b>梯度消失</b>
+              反向传播时梯度越来越小，前面层几乎学不到。常见于深层网络和 RNN。
+            </div>
+            <div class="note">
+              <b>梯度爆炸</b>
+              反向传播时梯度过大，参数更新剧烈，训练不稳定，损失可能变成 NaN。
+            </div>
+          </div>
+          <div class="question">
+            <b>解决思路</b>
+            合适初始化、ReLU、BatchNorm、残差连接、梯度裁剪、合理学习率。
+          </div>
+
+          <h3>Xavier 初始化</h3>
+          <p>Xavier 初始化的核心思想是让前向传播和反向传播时的方差尽量保持稳定，从而缓解梯度消失或爆炸。</p>
+        </section>
+
+        <section id="softmax">
+          <div class="section-head">
+            <h2>三、Softmax 与分类</h2>
+            <span class="tag">必会公式</span>
+          </div>
+          <h3>为什么要做 Softmax</h3>
+          <ul>
+            <li>把模型原始输出转换为概率分布。</li>
+            <li>每个类别概率在 0 到 1 之间，所有类别概率之和为 1。</li>
+            <li>适用于多分类任务，通常和交叉熵损失配合使用。</li>
+          </ul>
+
+          <div class="formula">
+            <b>Softmax 公式</b>
+            <code>softmax(x_i) = exp(x_i) / sum(exp(x_j))</code>
+          </div>
+          <div class="formula">
+            <b>数值稳定实现</b>
+            <code>exp(x_i - max(x)) / sum(exp(x_j - max(x)))</code>
+          </div>
+        </section>
+
+        <section id="mlp">
+          <div class="section-head">
+            <h2>四、多层感知机 MLP</h2>
+            <span class="tag">会画图</span>
+          </div>
+          <h3>多层感知器为什么能解决异或问题</h3>
+          <ul>
+            <li>单层感知机只能解决线性可分问题。</li>
+            <li>异或问题是非线性可分问题。</li>
+            <li>加入隐藏层和非线性激活函数后，网络可以拟合非线性决策边界。</li>
+          </ul>
+
+          <h3>隐藏层的作用</h3>
+          <p>隐藏层用于提取中间特征，把原始输入映射到更适合分类或回归的特征空间。</p>
+
+          <h3>激活函数表达形式</h3>
+          <table>
+            <thead>
+              <tr><th>激活函数</th><th>形式</th><th>特点</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Sigmoid</td><td><code>1 / (1 + exp(-x))</code></td><td>输出在 0 到 1，容易梯度消失</td></tr>
+              <tr><td>Tanh</td><td><code>(exp(x)-exp(-x))/(exp(x)+exp(-x))</code></td><td>输出在 -1 到 1</td></tr>
+              <tr><td>ReLU</td><td><code>max(0, x)</code></td><td>计算简单，深度网络中常用</td></tr>
+            </tbody>
+          </table>
+
+          <h3>过拟合与 k 折交叉验证</h3>
+          <div class="grid">
+            <div class="note">
+              <b>过拟合</b>
+              训练集效果很好，测试集效果变差。解决方法包括正则化、Dropout、数据增强、早停、减少模型复杂度。
+            </div>
+            <div class="note">
+              <b>k 折交叉验证</b>
+              将数据分成 k 份，轮流取一份做验证集，其余做训练集，用于更稳定地评估模型。
+            </div>
+          </div>
+        </section>
+
+        <section id="cnn">
+          <div class="section-head">
+            <h2>五、CNN 卷积神经网络基础</h2>
+            <span class="tag">重点解释</span>
+          </div>
+          <h3>图片是什么</h3>
+          <ul>
+            <li>灰度图可以看成二维矩阵。</li>
+            <li>彩色图通常是三维张量：高 × 宽 × 通道数。</li>
+            <li>RGB 图片有 3 个输入通道。</li>
+          </ul>
+
+          <h3>为什么有多个输入、输出通道</h3>
+          <ul>
+            <li>输入通道来自数据本身，例如 RGB 的红、绿、蓝三个通道。</li>
+            <li>输出通道由卷积核数量决定，一个卷积核通常产生一个输出特征图。</li>
+            <li>多个输出通道可以学习边缘、纹理、形状等不同特征。</li>
+          </ul>
+
+          <h3>Padding 与 Stride</h3>
+          <table>
+            <thead>
+              <tr><th>概念</th><th>作用</th><th>什么时候用</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Padding</td><td>在图像边缘补 0 或其他值</td><td>保留边缘信息、控制输出尺寸</td></tr>
+              <tr><td>Stride</td><td>卷积核每次移动的步长</td><td>降低输出尺寸、减少计算量</td></tr>
+            </tbody>
+          </table>
+
+          <h3>为什么不用全连接层处理整张图片</h3>
+          <ul>
+            <li>图片维度大，全连接层参数数量过多。</li>
+            <li>全连接层不善于保留空间结构。</li>
+            <li>卷积层具有局部连接和权值共享，参数更少，也更适合图像特征提取。</li>
+          </ul>
+
+          <div class="question">
+            <b>CNN 的困惑度有什么含义</b>
+            困惑度通常用于语言模型，不是 CNN 图像分类的典型指标。若题目提到困惑度，一般要说明它衡量模型对序列预测的不确定性，数值越低通常表示模型预测越好。
+          </div>
+        </section>
+
+        <section id="classic">
+          <div class="section-head">
+            <h2>六、经典 CNN 网络</h2>
+            <span class="tag">结构题</span>
+          </div>
+          <h3>LeNet</h3>
+          <p>LeNet 是早期用于手写数字识别的卷积神经网络，典型结构为卷积层、池化层、卷积层、池化层、全连接层。</p>
+
+          <h3>AlexNet 的 Max Pooling</h3>
+          <p>最大池化用于降采样，保留局部区域中最显著的特征，减少尺寸和计算量，并增强一定的局部平移不变性。</p>
+
+          <h3>批量归一化 BatchNorm</h3>
+          <div class="grid">
+            <div class="formula">
+              <b>第一步：标准化</b>
+              减均值、除标准差，使输入分布更稳定。
+            </div>
+            <div class="formula">
+              <b>第二步：缩放和平移</b>
+              引入可学习参数 <code>γ</code> 和 <code>β</code>，恢复网络表达能力。
+            </div>
+          </div>
+
+          <h3>ResNet 为什么能解决深层网络问题</h3>
+          <ul>
+            <li>ResNet 使用残差连接，让信息可以跨层直接传递。</li>
+            <li>网络学习的是残差 <code>F(x) = H(x) - x</code>，最终输出为 <code>F(x) + x</code>。</li>
+            <li>残差连接可以缓解梯度消失和网络退化问题，使更深的网络更容易训练。</li>
+          </ul>
+        </section>
+
+        <section id="sequence">
+          <div class="section-head">
+            <h2>七、序列模型与 Transformer</h2>
+            <span class="tag">后半重点</span>
+          </div>
+          <h3>LSTM</h3>
+          <ul>
+            <li>LSTM 用于处理序列数据。</li>
+            <li>通过门控机制缓解普通 RNN 的梯度消失问题。</li>
+            <li>关键门包括遗忘门、输入门、输出门。</li>
+          </ul>
+
+          <h3>Transformer 框架</h3>
+          <ul>
+            <li>核心机制是自注意力 Self-Attention。</li>
+            <li>主要组成包括输入嵌入、位置编码、多头注意力、前馈网络、残差连接、LayerNorm。</li>
+            <li>优点是并行计算能力强，能够捕捉长距离依赖。</li>
+          </ul>
+        </section>
+
+        <section id="priority">
+          <div class="section-head">
+            <h2>八、考前优先级</h2>
+            <span class="tag">最后背</span>
+          </div>
+          <p>如果时间紧，优先复习下面这些点。它们最容易出现在简答题和综合题里。</p>
+          <div class="priority">
+            <span>损失函数</span>
+            <span>梯度下降</span>
+            <span>Softmax</span>
+            <span>MLP 与异或</span>
+            <span>梯度消失/爆炸</span>
+            <span>Xavier 初始化</span>
+            <span>CNN 通道</span>
+            <span>Padding / Stride</span>
+            <span>LeNet / AlexNet</span>
+            <span>BatchNorm</span>
+            <span>ResNet</span>
+            <span>LSTM</span>
+            <span>Transformer</span>
+          </div>
+        </section>
+
+        <p class="footer">整理自课堂重点：深度学习考试复习提纲。</p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
